@@ -35,7 +35,7 @@ jobs:
       package: ${{ steps.pack.outputs.package }}
       sha256: ${{ steps.pack.outputs.sha256 }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -101,7 +101,7 @@ jobs:
       name: production
       url: ${{ env.SITE_URL }}
     steps:
-      - uses: actions/checkout@v4        # only to read deploy/remote-deploy.sh
+      - uses: actions/checkout@v7        # only to read deploy/remote-deploy.sh
 
       - uses: actions/download-artifact@v4
         with:
