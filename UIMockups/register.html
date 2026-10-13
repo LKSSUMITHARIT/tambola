@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Register</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="register.html" data-role="">
+<main class="narrow" style="margin-top:50px">
+<div class="card">
+ <h1>Welcome to Tambola 👋</h1>
+ <p class="sub">First time here? Link your employee details. This is a one-time step.</p>
+ <label>Windows account</label><input value="CORP\anil.kumar" readonly>
+ <label>Display name</label><input value="Anil Kumar" readonly>
+ <label for="code">Employee Code</label><input id="code" placeholder="e.g. EMP10234">
+ <div class="hint">One Employee Code can be linked to one email only.</div>
+ <label for="mail">Company email</label><input id="mail" type="email" placeholder="name@company.com">
+ <div class="hint">Must be a @company.com address.</div>
+ <div id="msg"></div>
+ <div class="row" style="margin-top:16px"><button class="btn primary" id="go">Register</button>
+  <button class="btn" id="dup">Preview: duplicate error</button></div>
+</div></main>
+<script src="assets/app.js"></script>
+<script>
+document.getElementById('go').onclick=function(){
+  var c=document.getElementById('code').value.trim(),m=document.getElementById('mail').value.trim();
+  var box=document.getElementById('msg');
+  if(!/^EMP\d{4,6}$/i.test(c)){box.innerHTML='<div class="alert bad">Employee Code must look like EMP10234.</div>';return}
+  if(!/@company\.com$/i.test(m)){box.innerHTML='<div class="alert bad">Please use your @company.com email.</div>';return}
+  box.innerHTML='<div class="alert info">✔ Registered! Redirecting to home…</div>';setTimeout(function(){location.href='dashboard.html'},1200)};
+document.getElementById('dup').onclick=function(){document.getElementById('msg').innerHTML='<div class="alert bad">This Employee Code is already registered with another email. Contact the Admin if this is a mistake.</div>'};
+</script></body></html>

@@ -1,0 +1,16 @@
+@page
+@model Tambola.Web.Pages.Dev.LoginModel
+@{ ViewData["Title"] = "Dev login"; ViewData["Narrow"] = true; }
+<div class="card" style="margin-top:30px">
+  <h1>Dev login</h1>
+  <div class="alert warn">Local testing only. In production, Windows Authentication identifies you automatically.</div>
+  <form method="post">
+    <label>Windows account (DOMAIN\user)</label>
+    <input name="User_" value="CORP\" autocomplete="off">
+    <div class="row" style="margin-top:10px">
+      @foreach (var u in new[] { @"CORP\admin.user", @"CORP\sumit.harit", @"CORP\priya.rao", @"CORP\anil.kumar", @"CORP\neha.singh" })
+      { <button type="button" class="btn sm" onclick="this.form.User_.value='@u.Replace("\\", "\\\\")'">@u</button> }
+    </div>
+    <div class="row" style="margin-top:16px"><button class="btn primary" type="submit">Sign in</button></div>
+  </form>
+</div>

@@ -1,0 +1,42 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Create Room</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="host-create.html" data-role="host">
+<main>
+<h1>Create Room</h1><p class="sub">Configure the game. Prizes and winner counts lock once the game starts.</p>
+<div class="cols">
+ <div class="grid">
+  <div class="card"><h2>Game settings</h2>
+   <label>Room name</label><input value="Friday Fun Tambola">
+   <div class="grid g2">
+    <div><label>Max players</label><input type="number" value="100"></div>
+    <div><label>Max tickets per player</label><input type="number" value="3"></div></div>
+   <div class="grid g2">
+    <div><label>Number calling</label><div class="pill-toggle" data-grp="call"><button class="on" data-v="manual">Manual</button><button data-v="auto">Auto</button></div>
+     <div id="intv" style="display:none"><label>Auto interval (seconds)</label><input type="number" value="6" min="3" max="15"></div></div>
+    <div><label>Number cutting</label><div class="pill-toggle" data-grp="cut"><button data-v="manual" class="on">Manual</button><button data-v="auto">Auto</button></div>
+     <div class="hint">Auto cuts called numbers on tickets for everyone. Players still press Claim.</div></div></div>
+   <label>Scheduled start (optional)</label><input type="datetime-local">
+  </div>
+  <div class="card"><h2>Prizes &amp; winner counts</h2>
+   <table><tr><th>On</th><th>Winning case</th><th>Winners</th><th>Reward (optional)</th></tr>
+    <tr><td><input type="checkbox" checked></td><td><b>Four Corners</b></td><td><input type="number" value="4" min="1" style="width:80px"></td><td><input value="Coffee voucher"></td></tr>
+    <tr><td><input type="checkbox" checked></td><td><b>1st Row</b></td><td><input type="number" value="5" min="1" style="width:80px"></td><td><input value="Movie tickets"></td></tr>
+    <tr><td><input type="checkbox" checked></td><td><b>2nd Row</b></td><td><input type="number" value="5" min="1" style="width:80px"></td><td><input value="Movie tickets"></td></tr>
+    <tr><td><input type="checkbox" checked></td><td><b>3rd Row</b></td><td><input type="number" value="5" min="1" style="width:80px"></td><td><input value="Movie tickets"></td></tr>
+    <tr><td><input type="checkbox" checked></td><td><b>Full House</b></td><td><input type="number" value="1" min="1" style="width:80px"></td><td><input value="Gift hamper"></td></tr>
+    <tr><td><input type="checkbox"></td><td><b>Early Five</b></td><td><input type="number" value="1" min="1" style="width:80px"></td><td><input placeholder="—"></td></tr>
+   </table>
+   <div class="hint">First N valid claims win each prize; the prize then closes automatically.</div>
+  </div>
+ </div>
+ <div class="card" style="align-self:start"><h2>Summary</h2>
+  <ul class="list"><li>Calling: <b id="s1">Manual</b></li><li>Cutting: <b id="s2">Manual</b></li><li>Total winners: <b>20</b></li></ul>
+  <div class="row" style="margin-top:14px"><a class="btn primary" href="host-console.html">Create room</a><a class="btn" href="dashboard.html">Cancel</a></div>
+ </div>
+</div></main>
+<script src="assets/app.js"></script>
+<script>
+document.querySelectorAll('.pill-toggle').forEach(function(g){g.onclick=function(e){var b=e.target;if(b.tagName!=='BUTTON')return;
+ g.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
+ var v=b.textContent;if(g.dataset.grp==='call'){s1.textContent=v;intv.style.display=v==='Auto'?'block':'none'}else s2.textContent=v}});
+</script></body></html>

@@ -1,0 +1,51 @@
+@page
+@model Tambola.Web.Pages.Rooms.CreateModel
+@using Tambola.Domain.Entities
+@using Tambola.Domain.Game
+@using Tambola.Web.Services
+@{ ViewData["Title"] = "Create Room"; }
+<h1>Create Room</h1>
+<p class="sub">Configure the game. Prizes and winner counts are fixed once the game starts.</p>
+@if (Model.Error != null) { <div class="alert bad">@Model.Error</div> }
+<form method="post">
+<div class="cols">
+  <div class="grid">
+    <div class="card"><h2>Game settings</h2>
+      <label for="Name">Room name</label><input asp-for="Name" maxlength="60" required placeholder="Friday Fun Tambola">
+      <div class="grid g2">
+        <div><label for="MaxPlayers">Max players (up to @GameService.MaxPlayersLimit)</label><input asp-for="MaxPlayers" type="number" min="1" max="@GameService.MaxPlayersLimit"></div>
+        <div><label for="MaxTickets">Max tickets per player</label><input asp-for="MaxTickets" type="number" min="1" max="6"></div>
+      </div>
+      <label for="MaxWrongClaims">Wrong claims allowed per prize</label>
+      <input asp-for="MaxWrongClaims" type="number" min="0" max="1000" required style="max-width:140px">
+      <div class="hint">A player whose claim is wrong may try again until this many wrong claims; then that prize is locked for them. Default 3. Enter 0 for unlimited tries.</div>
+      <div class="grid g2">
+        <div><label>Number calling</label>
+          <select asp-for="CallMode"><option value="Manual">Manual (host presses Call next)</option><option value="Auto">Auto (server calls)</option></select>
+          <label for="Interval">Auto interval (seconds, 3–15)</label><input asp-for="Interval" type="number" min="3" max="15"></div>
+        <div><label>Number cutting</label>
+          <select asp-for="CutMode"><option value="Manual">Manual (players tap)</option><option value="Auto">Auto (cut for everyone)</option></select>
+          <div class="hint">Players still press Claim in both modes.</div></div>
+      </div>
+    </div>
+    <div class="card"><h2>Prizes &amp; winner counts</h2>
+      <table><tr><th>On</th><th>Winning case</th><th>Winners</th><th>Reward (optional)</th></tr>
+      @for (var i = 0; i < Model.Prizes.Count; i++)
+      {
+        <tr>
+          <td><input type="hidden" asp-for="Prizes[i].Pattern"><input type="checkbox" asp-for="Prizes[i].Enabled"></td>
+          <td><b>@PatternCatalog.Get(Model.Prizes[i].Pattern).DisplayName</b></td>
+          <td><input asp-for="Prizes[i].Winners" type="number" min="1" max="100" style="width:80px"></td>
+          <td><input asp-for="Prizes[i].Reward" maxlength="80" placeholder="e.g. Gift voucher"></td>
+        </tr>
+      }
+      </table>
+      <div class="hint">The first N valid claims win each prize; it then closes automatically.</div>
+    </div>
+  </div>
+  <div class="card" style="align-self:start"><h2>Ready?</h2>
+    <p class="sub">You'll get a 6-character room code to share with players.</p>
+    <div class="row"><button class="btn primary" type="submit">Create room</button><a class="btn" href="/">Cancel</a></div>
+  </div>
+</div>
+</form>

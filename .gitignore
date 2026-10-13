@@ -1,0 +1,29 @@
+# build output
+bin/
+obj/
+publish/
+TestResults/
+*.tar.gz
+
+# runtime data (never commit databases or logs)
+App_Data/
+logs/
+*.db
+*.db-shm
+*.db-wal
+
+# IDE / local tooling
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+.claude/
+
+# local secrets / environment files
+.env
+*.env
+*.pem
+*_rsa
+*_ed25519
+tambola_vps*

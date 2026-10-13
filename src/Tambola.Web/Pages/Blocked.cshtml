@@ -1,0 +1,8 @@
+@page
+@model BlockedModel
+@{ ViewData["Title"] = "Access not permitted"; ViewData["Narrow"] = true; }
+<div class="card" style="margin-top:30px">
+  <h1>Access not permitted</h1>
+  <div class="alert bad">Your account (@User.Identity?.Name) belongs to the domain <b>@Model.Domain</b>, which is not allowed to use this application.</div>
+  <p class="sub">If you think this is a mistake, please contact the Admin.</p>
+</div>

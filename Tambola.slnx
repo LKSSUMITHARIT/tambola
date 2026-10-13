@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Tambola.Domain/Tambola.Domain.csproj" />
+    <Project Path="src/Tambola.Web/Tambola.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Tambola.Tests/Tambola.Tests.csproj" />
+    <Project Path="tests/Tambola.LoadTest/Tambola.LoadTest.csproj" />
+  </Folder>
+</Solution>

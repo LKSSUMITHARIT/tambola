@@ -1,0 +1,62 @@
+<!doctype html>
+@{ var appOpt = Context.RequestServices.GetRequiredService<Microsoft.Extensions.Options.IOptions<Tambola.Web.Services.AppOptions>>().Value; }
+<html lang="en" data-default-theme="@appOpt.DefaultTheme.ToLowerInvariant()" data-default-sound="@(appOpt.DefaultSoundOn ? "on" : "off")">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>@(ViewData["Title"] ?? "Tambola")</title>
+  <script>
+    (function () {
+      var r = document.documentElement, t = r.dataset.defaultTheme;
+      try { t = localStorage.getItem('theme') || t; } catch (e) { }
+      if (t === 'dark' || t === 'light') r.dataset.theme = t;
+    })();
+  </script>
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+</head>
+<body>
+@{
+  var isAuth = User.Identity?.IsAuthenticated == true;
+  var registered = User.HasClaim(c => c.Type == Claims.EmployeeId);
+  var path = Context.Request.Path.Value ?? "";
+  string On(string p) => path.StartsWith(p, StringComparison.OrdinalIgnoreCase) ? "on" : "";
+}
+<header class="top">
+  <a class="logo" href="/">🎯 Tambola</a>
+  @if (registered)
+  {
+    <nav>
+      <a href="/" class="@(path == "/" ? "on" : "")">Home</a>
+      @if (User.IsInRole("Host")) { <a href="/Rooms/Create" class="@On("/Rooms/Create")">Create Room</a> }
+      <a href="/History" class="@On("/History")">My Games</a>
+      @if (User.IsInRole("Admin")) { <a href="/Admin" class="@(path == "/Admin" ? "on" : "")">Hosts &amp; Employees</a><a href="/Admin/Reports" class="@On("/Admin/Reports")">Reports</a> }
+      <a href="/Help" class="@On("/Help")">Help</a>
+    </nav>
+  }
+  <div class="who">
+    @if (isAuth)
+    {
+      <span>@User.Identity!.Name</span>
+      @if (User.IsInRole("Admin")) { <span class="badge bad">Admin</span> }
+      @if (User.IsInRole("Host")) { <span class="badge brand">Host</span> }
+      @if (appOpt.IsDev)
+      { <a class="btn sm" href="/Dev/Login">Switch user (dev)</a> }
+      @if (appOpt.IsManual)
+      {
+        <a class="btn sm" href="/Account/ChangePassword">Password</a>
+        <form method="post" action="/Account/ChangePassword?handler=Logout" style="display:inline"><button class="btn sm" type="submit">Sign out</button></form>
+      }
+    }
+    <button class="btn sm" id="soundBtn" title="Sound on/off" type="button">🔊</button>
+    <button class="btn sm" id="themeBtn" title="Toggle theme" type="button">🌓</button>
+  </div>
+</header>
+<main class="@(ViewData["Narrow"] is true ? "narrow" : "")">
+  @RenderBody()
+</main>
+<script src="~/lib/jquery.min.js"></script>
+<script src="~/lib/signalr.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

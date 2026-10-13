@@ -1,0 +1,36 @@
+@page
+@{ ViewData["Title"] = "Help"; }
+<h1>Help &amp; User Guide</h1>
+<p class="sub">Everything you need to play or host a Tambola game.</p>
+<div class="grid g2">
+ <div class="card"><h2>🎟️ For players</h2>
+  <ol>
+   <li><b>First login:</b> register once with your Employee Code and email. One code ↔ one email. On Linux hosting you also choose your domain, User ID and a password, and sign in with them next time (<i>Password</i> / <i>Sign out</i> are in the top bar).</li>
+   <li><b>Join:</b> enter the 6-character room code on Home (or pick a game under <i>Live games</i>; finished ones are under <i>Past games</i>).</li>
+   <li><b>Tickets:</b> in the lobby press “Get a ticket” (the host sets the limit). Tickets are final once the game starts.</li>
+   <li><b>Play:</b> watch the big <i>Current Number</i>. In <b>Manual</b> cutting rooms, tap a called number on your ticket to cut it; in <b>Auto</b> rooms numbers are cut for you.</li>
+   <li><b>Claim:</b> when you complete a winning case (Four Corners, a Row, Full House…) press its <b>Claim</b> button straight away. The server checks your claim against the numbers actually called.</li>
+   <li><b>Wrong claims:</b> a wrong claim tells you how many tries you have left for that prize (the host sets the limit, default 3); when they run out the prize is locked for you.</li>
+   <li><b>Locked buttons:</b> a Claim button locks when you already won it, your wrong-claim limit for it is used up, the prize is full, or the game isn't running.</li>
+  </ol>
+  <div class="alert info">Claim fast! Each prize has a fixed number of winners — the first valid claims win. Late but correct claims get a “be quicker next time” message.</div></div>
+ <div class="card"><h2>🎙️ For hosts</h2>
+  <ol>
+   <li><b>Create room:</b> set name, limits (up to 1500 players; <i>wrong claims allowed per prize</i>, default 3, 0 = unlimited), calling mode (Manual/Auto + interval), cutting mode (Manual/Auto) and the prize table — winners per case (e.g. Full House 1, Four Corners 4, each Row 5) and optional reward text.</li>
+   <li><b>Share</b> the room code. Watch players join in the console. You can lock the room or remove a player.</li>
+   <li><b>Start</b> once players hold tickets. Press <b>Call next</b> (Manual) or let the server call automatically (Auto). You can switch mode or Pause/Resume at any time.</li>
+   <li><b>Claims</b> appear live in the feed; prizes close automatically at their winner count. The game completes when every prize is full, or press <b>End game</b>.</li>
+   <li><b>Delete</b> a finished game (Home → <i>Past games</i>, or on the Results page) to hide it from everyone; an Admin can restore it.</li>
+  </ol>
+  <p class="hint">Hosts are appointed by an Admin. Hosts can't hold tickets in their own room.</p></div>
+ <div class="card"><h2>🛡️ For admins</h2>
+  <ul><li><b>Hosts &amp; Employees:</b> search, <i>Make Host</i> / <i>Revoke Host</i>, activate/deactivate.</li>
+  <li><b>Reset password</b> (Linux hosting): gives a temporary password the employee must change at next sign-in.</li>
+  <li><b>Reports:</b> leaderboard, totals, CSV export, the audit log, and <i>Deleted games</i> with Restore.</li>
+  <li>Admins are defined in <code>appsettings.json → Tambola:AdminUsers</code>.</li></ul></div>
+ <div class="card"><h2>❓ Troubleshooting</h2>
+  <ul><li><b>“Reconnecting…” banner:</b> your connection dropped; the game resumes automatically with your tickets and cuts intact.</li>
+  <li><b>Can't sign in / blank prompt:</b> use Edge or Chrome on a domain-joined PC. In Firefox, add the site to <code>network.negotiate-auth.trusted-uris</code>.</li>
+  <li><b>“Employee Code already registered”:</b> ask the Admin to correct the record.</li>
+  <li><b>No sound:</b> sound is on by default (numbers read aloud + win/claim effects). Use the 🔊 button in the header to mute/unmute. Browsers only allow sound after you have clicked something on the page.</li></ul></div>
+</div>

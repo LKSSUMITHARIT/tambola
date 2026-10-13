@@ -1,0 +1,160 @@
+name: Release and deploy
+
+# Runs when you push a version tag (v1.2.0) or start it by hand from the Actions tab.
+# 1. build + test + package   2. publish a GitHub Release with the package
+# 3. (after approval) deploy to the Hostinger VPS over SSH   4. check the live site
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Deploy to production after building?"
+        type: boolean
+        default: true
+
+# One deployment at a time; a second one waits instead of overlapping.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SITE_URL: https://tambola.sumitharit.com
+
+jobs:
+  build:
+    name: Build, test, package
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write          # needed only to create the GitHub Release
+    outputs:
+      package: ${{ steps.pack.outputs.package }}
+      sha256: ${{ steps.pack.outputs.sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Test
+        run: dotnet test tests/Tambola.Tests -c Release
+
+      - name: Work out the version
+        id: ver
+        run: |
+          V="${GITHUB_REF_NAME#v}"                       # tag v1.2.0 -> 1.2.0
+          [[ "$V" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-+].*)?$ ]] || V=0.0.0   # manual runs from a branch
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+
+      - name: Publish (framework-dependent, linux-x64)
+        run: >
+          dotnet publish src/Tambola.Web -c Release -r linux-x64 --self-contained false
+          -p:Version=${{ steps.ver.outputs.version }}
+          -p:InformationalVersion=${{ steps.ver.outputs.version }}+${{ github.sha }}
+          -o out/publish
+
+      - name: Package
+        id: pack
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME//\//-}"
+          PKG="tambola-${VERSION}.tar.gz"
+          test -f out/publish/Tambola.Web.dll
+          test -d out/publish/wwwroot
+          tar -czf "out/$PKG" -C out/publish .
+          SHA=$(sha256sum "out/$PKG" | cut -d' ' -f1)
+          echo "package=$PKG" >> "$GITHUB_OUTPUT"
+          echo "sha256=$SHA"  >> "$GITHUB_OUTPUT"
+          echo "$SHA  $PKG" > "out/$PKG.sha256"
+          echo "### Package" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$PKG\`  SHA256 \`$SHA\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tambola-package
+          path: |
+            out/tambola-*.tar.gz
+            out/tambola-*.tar.gz.sha256
+          retention-days: 30
+
+      - name: Create GitHub Release (tags only)
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" out/tambola-*.tar.gz out/tambola-*.tar.gz.sha256 \
+            --title "Tambola $GITHUB_REF_NAME" --generate-notes
+
+  deploy:
+    name: Deploy to production
+    needs: build
+    if: github.ref_type == 'tag' || inputs.deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # "production" is a GitHub Environment: add required reviewers there so a person approves every deployment.
+    environment:
+      name: production
+      url: ${{ env.SITE_URL }}
+    steps:
+      - uses: actions/checkout@v4        # only to read deploy/remote-deploy.sh
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: tambola-package
+          path: out
+
+      - name: Prepare SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Upload package and script
+        env:
+          HOST: ${{ secrets.VPS_HOST }}
+          USER_: ${{ secrets.VPS_USER }}
+          PKG: ${{ needs.build.outputs.package }}
+        run: |
+          set -euo pipefail
+          SSH_OPTS="-i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes -o ConnectTimeout=20"
+          scp $SSH_OPTS "out/$PKG" deploy/remote-deploy.sh "$USER_@$HOST:/tmp/"
+
+      - name: Deploy on the server
+        env:
+          HOST: ${{ secrets.VPS_HOST }}
+          USER_: ${{ secrets.VPS_USER }}
+          PKG: ${{ needs.build.outputs.package }}
+          SHA: ${{ needs.build.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          SSH_OPTS="-i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes -o ConnectTimeout=20"
+          ssh $SSH_OPTS "$USER_@$HOST" "bash /tmp/remote-deploy.sh /tmp/$PKG $SHA; rc=\$?; rm -f /tmp/remote-deploy.sh /tmp/$PKG; exit \$rc"
+
+      - name: Check the live site
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 15); do
+            if curl -fsS --max-time 10 "$SITE_URL/health" | grep -q '"status":"ok"'; then
+              echo "Live site healthy: $SITE_URL"
+              echo "### Deployed ${{ github.ref_name }} :white_check_mark:" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 4
+          done
+          echo "::error::Live site did not report healthy after deployment"
+          exit 1
+
+      - name: Clean up SSH material
+        if: always()
+        run: rm -f ~/.ssh/deploy_key ~/.ssh/known_hosts

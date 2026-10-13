@@ -1,0 +1,26 @@
+@page
+@model Tambola.Web.Pages.Account.RegisterModel
+@{ ViewData["Title"] = "Register"; ViewData["Narrow"] = true; }
+<div class="card" style="margin-top:30px">
+  <h1>Welcome to Tambola 👋</h1>
+  <p class="sub">Create your account. This is a one-time step.</p>
+  <form method="post">
+    <label for="Domain">Domain</label>
+    <select asp-for="Domain">
+      <option value="">— choose —</option>
+      @foreach (var d in Model.Domains) { <option value="@d" selected="@(d == Model.Domain)">@d</option> }
+    </select>
+    <label for="UserId">User ID</label><input asp-for="UserId" autocomplete="username" maxlength="64">
+    <div class="hint">Letters, digits, '.', '_' and '-'. This is how you sign in.</div>
+    <label for="Password">Password</label><input asp-for="Password" type="password" autocomplete="new-password">
+    <div class="hint">At least @Model.MinLength characters.</div>
+    <label for="ConfirmPassword">Confirm password</label><input asp-for="ConfirmPassword" type="password" autocomplete="new-password">
+    <label for="DisplayName">Display name</label><input asp-for="DisplayName" maxlength="60">
+    <label for="EmployeeCode">Employee Code</label><input asp-for="EmployeeCode" placeholder="e.g. EMP10234" maxlength="20" autocomplete="off">
+    <div class="hint">One Employee Code can be linked to one email only.</div>
+    <label for="Email">Email</label><input asp-for="Email" type="email" placeholder="name@company.com">
+    @if (Model.Error != null) { <div class="alert bad">@Model.Error</div> }
+    <div class="row" style="margin-top:16px"><button class="btn primary" type="submit">Register</button>
+      <a class="btn" href="/Account/Login">Already registered? Sign in</a></div>
+  </form>
+</div>

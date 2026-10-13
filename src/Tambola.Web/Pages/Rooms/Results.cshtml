@@ -1,0 +1,26 @@
+@page "/Rooms/Results/{code}"
+@model Tambola.Web.Pages.Rooms.ResultsModel
+@{ ViewData["Title"] = "Results"; var dur = Model.Room.StartedAt != null && Model.Room.EndedAt != null ? (int)(Model.Room.EndedAt.Value - Model.Room.StartedAt.Value).TotalMinutes : 0; }
+<h1>🏆 Results — @Model.Room.Name</h1>
+<p class="sub">@Model.Room.Status · @Model.Called.Length numbers called · @Model.PlayerCount players · host @Model.HostName @(dur > 0 ? $"· {dur} min" : "")</p>
+@foreach (var w in Model.MyWins) { <div class="alert info">🎉 You won <b>@w</b></div> }
+<div class="grid g2">
+  <div class="card"><h2>Winners</h2>
+    @foreach (var p in Model.Prizes)
+    {
+      <h3 style="margin-top:10px">@p.Name <span class="badge @(p.Winners.Count >= p.Of ? "ok" : "warn")">@p.Winners.Count / @p.Of</span> @if (p.Reward != null) { <small class="hint">· @p.Reward</small> }</h3>
+      @if (p.Winners.Count == 0) { <p class="hint">No winners</p> }
+      else { <table>@foreach (var w in p.Winners) { <tr><td>@w.Slot</td><td>@w.Name @(w.IsMe ? "(you)" : "")</td><td>after call #@w.AtCall</td></tr> }</table> }
+    }
+  </div>
+  <div class="card"><h2>Called numbers</h2><div class="board" id="board" data-called="@string.Join(',', Model.Called)"></div>
+    @if (Model.Error != null) { <div class="alert bad">@Model.Error</div> }
+    <div class="row" style="margin-top:14px"><a class="btn primary" href="/">Back to home</a><a class="btn" href="/History">My games</a>
+      @if (Model.CanDelete)
+      {
+        <form method="post" asp-page-handler="Delete" asp-route-code="@Model.Room.Code" onsubmit="return confirm('Delete this game? It will disappear for all players. An Admin can still restore it.');"><button class="btn danger" type="submit">🗑 Delete game</button></form>
+      }</div></div>
+</div>
+@section Scripts { <script>
+  (function(){ var raw=$('#board').data('called')+''; var called=raw?raw.split(',').map(Number):[]; T.board(document.getElementById('board'), called); })();
+</script> }

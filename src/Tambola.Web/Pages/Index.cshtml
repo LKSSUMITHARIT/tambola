@@ -1,0 +1,76 @@
+@page
+@model IndexModel
+@{ ViewData["Title"] = "Home"; }
+<h1>Hello, @Model.DisplayName 👋</h1>
+<p class="sub">Join a game with a room code, or pick an open room below.</p>
+<div class="cols">
+  <div class="grid">
+    <div class="card">
+      <h2>Join with room code</h2>
+      <form method="post" class="row">
+        <input asp-for="Code" style="max-width:220px;font:700 20px Consolas;letter-spacing:4px;text-transform:uppercase" maxlength="6" placeholder="ABC123" autocomplete="off">
+        <button class="btn primary" type="submit">Join Room</button>
+      </form>
+      @if (Model.Error != null) { <div class="alert bad">@Model.Error</div> }
+    </div>
+    @if (Model.Message != null) { <div class="alert">@Model.Message</div> }
+    <div class="card">
+      <div class="pill-toggle" id="gameTabs"><button type="button" class="on" data-tab="live">Live games (@Model.Open.Count)</button><button type="button" data-tab="past">Past games (@Model.Past.Count)</button></div>
+      <div id="tab-live">
+      <h2>Live games</h2>
+      @if (Model.Open.Count == 0) { <p class="sub">No open rooms right now.</p> }
+      else
+      {
+        <table><tr><th>Room</th><th>Host</th><th>Players</th><th>Status</th><th></th></tr>
+        @foreach (var r in Model.Open)
+        {
+          <tr><td><b>@r.Name</b><br><small>Code @r.Code</small></td><td>@r.Host</td><td>@r.Players / @r.MaxPlayers</td>
+              <td>@if (r.Status == Tambola.Domain.Entities.RoomStatus.Lobby) { <span class="badge ok">Lobby</span> } else { <span class="badge warn">@r.Status · @r.Calls called</span> }</td>
+              <td><a class="btn sm primary" href="/Rooms/Play/@r.Code">Join</a></td></tr>
+        }
+        </table>
+      }
+      </div>
+      <div id="tab-past" style="display:none">
+      <h2>Past games</h2>
+      @if (Model.Past.Count == 0) { <p class="sub">No finished games yet.</p> }
+      else
+      {
+        <table><tr><th>Game</th><th>Host</th><th>Ended</th><th>Status</th><th></th></tr>
+        @foreach (var p in Model.Past)
+        {
+          <tr><td><b>@p.Name</b><br><small>Code @p.Code</small></td><td>@p.Host</td><td>@p.Date.ToString("yyyy-MM-dd HH:mm")</td>
+              <td><span class="badge @(p.Status == Tambola.Domain.Entities.RoomStatus.Completed ? "ok" : "bad")">@p.Status</span></td>
+              <td><div class="row"><a class="btn sm" href="/Rooms/Results/@p.Code">Results</a>
+                @if (p.IAmHost || User.IsInRole("Admin"))
+                {
+                  <form method="post" asp-page-handler="Delete" asp-route-code="@p.Code" onsubmit="return confirm('Delete &quot;@p.Name&quot;? It will disappear for all players. An Admin can still restore it.');"><button class="btn sm danger" type="submit">Delete</button></form>
+                }</div></td></tr>
+        }
+        </table>
+      }
+      </div>
+    </div>
+  </div>
+  <div class="grid" style="align-self:start">
+    <div class="card"><h2>My stats</h2>
+      <div class="grid g3"><div class="stat"><b>@Model.Games</b><span>Games</span></div><div class="stat"><b>@Model.PrizesWon</b><span>Prizes won</span></div><div class="stat"><b>@Model.FullHouses</b><span>Full Houses</span></div></div></div>
+    @if (User.IsInRole("Host"))
+    {
+      <div class="card"><h2>Host tools</h2><a class="btn" href="/Rooms/Create">➕ Create Room</a>
+        @foreach (var r in Model.Mine)
+        {
+          <div class="prize"><div class="info"><b>@r.Name</b><small>@r.Code · @r.Status</small></div>
+            <a class="btn sm primary" href="/Rooms/Host/@r.Code">Console</a></div>
+        }
+      </div>
+    }
+  </div>
+</div>
+@section Scripts { <script>
+  $('#gameTabs').on('click', 'button', function () {
+    var t = $(this).data('tab');
+    $('#gameTabs button').removeClass('on'); $(this).addClass('on');
+    $('#tab-live').toggle(t === 'live'); $('#tab-past').toggle(t === 'past');
+  });
+</script> }

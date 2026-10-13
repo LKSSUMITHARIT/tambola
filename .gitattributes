@@ -1,0 +1,15 @@
+# Normalise line endings. Shell scripts and workflows MUST stay LF or they break on Linux.
+* text=auto
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.service text eol=lf
+*.timer text eol=lf
+Caddyfile text eol=lf
+
+# binaries
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary

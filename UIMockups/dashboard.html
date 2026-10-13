@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="dashboard.html" data-role="player">
+<main>
+<h1>Hello, Anil 👋</h1><p class="sub">Join a game with a room code, or pick an open room below.</p>
+<div class="cols">
+ <div class="grid">
+  <div class="card"><h2>Join with room code</h2>
+   <div class="row"><input id="rc" style="max-width:220px;font:700 20px Consolas;letter-spacing:4px;text-transform:uppercase" maxlength="6" placeholder="ABC123">
+   <a class="btn primary" href="lobby.html">Join Room</a></div></div>
+  <div class="card"><h2>Open rooms</h2>
+   <table><tr><th>Room</th><th>Host</th><th>Players</th><th>Status</th><th></th></tr>
+    <tr><td><b>Friday Fun Tambola</b><br><small>Code K7P2QX</small></td><td>Sumit Harit</td><td>38 / 100</td><td><span class="badge ok">Lobby</span></td><td><a class="btn sm primary" href="lobby.html">Join</a></td></tr>
+    <tr><td><b>HR Team Bingo</b><br><small>Code M3N9ZA</small></td><td>Priya Rao</td><td>21 / 50</td><td><span class="badge warn">Running · 34 called</span></td><td><a class="btn sm" href="player-game.html">Late join</a></td></tr>
+    <tr><td><b>Diwali Special</b><br><small>Code D1W4LI</small></td><td>Rahul Jain</td><td>0 / 150</td><td><span class="badge">Starts 6:00 PM</span></td><td><button class="btn sm" disabled>Not open</button></td></tr>
+   </table></div>
+ </div>
+ <div class="grid">
+  <div class="card"><h2>My stats</h2><div class="grid g3"><div class="stat"><b>12</b><span>Games</span></div><div class="stat"><b>5</b><span>Prizes won</span></div><div class="stat"><b>3</b><span>Full Houses</span></div></div></div>
+  <div class="card"><h2>Host tools</h2><p class="sub">Visible only to Hosts.</p><a class="btn" href="host-create.html">➕ Create Room</a></div>
+ </div>
+</div></main><script src="assets/app.js"></script></body></html>

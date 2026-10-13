@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Host Console</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="host-console.html" data-role="host">
+<main>
+<div class="row spread"><div><h1>Host Console — Friday Fun Tambola <span class="badge" id="st">Lobby</span></h1>
+ <p class="sub">Calling: <b id="callLbl">Manual</b> · Cutting: <b>Manual</b> · 38 players · 61 tickets</p></div><div class="code">K7P2QX</div></div>
+
+<div class="cols">
+ <div class="grid">
+  <div class="card current"><div style="color:var(--muted);font-size:13px">CURRENT NUMBER · <span id="cnt">0</span> / 90 called</div>
+   <div class="ball" id="ball">—</div><div class="recent" id="recent"></div>
+   <div class="row" style="justify-content:center;margin-top:14px">
+    <button class="btn ok" id="start">▶ Start game</button>
+    <button class="btn primary" id="next" disabled>🎱 Call next</button>
+    <div class="pill-toggle" id="cm"><button class="on" data-v="manual">Manual</button><button data-v="auto">Auto</button></div>
+    <button class="btn" id="pause" disabled>⏸ Pause</button>
+    <button class="btn danger" id="end" disabled>■ End game</button></div></div>
+  <div class="card"><h2>Called numbers</h2><div class="board" id="board"></div></div>
+ </div>
+ <div class="grid" style="align-self:start">
+  <div class="card"><h2>Prizes</h2><div id="prizes"></div></div>
+  <div class="card"><h2>Claims feed</h2><div class="feed" id="feed"><div style="color:var(--muted)">No claims yet</div></div>
+   <button class="btn sm" id="sim" style="margin-top:8px" disabled>Demo: simulate incoming claim</button></div>
+  <div class="card"><h2>Players <span class="badge ok">38</span></h2>
+   <ul class="list"><li><span class="dot"></span>Anil Kumar <button class="btn sm danger" style="margin-left:auto" onclick="T.toast('Player removed (mock)')">Remove</button></li>
+   <li><span class="dot"></span>Neha Singh <button class="btn sm danger" style="margin-left:auto" onclick="T.toast('Player removed (mock)')">Remove</button></li>
+   <li><span class="dot"></span>Meera Nair <button class="btn sm danger" style="margin-left:auto" onclick="T.toast('Player removed (mock)')">Remove</button></li></ul>
+   <button class="btn sm" onclick="T.toast('Room locked (mock)')">🔒 Lock room</button></div>
+ </div>
+</div></main>
+<script src="assets/app.js"></script>
+<script>
+var P={corners:{n:'Four Corners',max:4,w:[]},r1:{n:'1st Row',max:5,w:[]},r2:{n:'2nd Row',max:5,w:[]},r3:{n:'3rd Row',max:5,w:[]},fh:{n:'Full House',max:1,w:[]}};
+var names=['Neha Singh','Meera Nair','Priya Rao','Rahul Jain','Vikram Das','Anil Kumar','Sumit T.'];
+var pool=T.shuffle(Array.from({length:90},function(_,i){return i+1})),called=[],auto=false,timer=null,running=false,paused=false;
+function prizes(){prizesEl.innerHTML=Object.keys(P).map(function(k){var p=P[k],c=p.w.length>=p.max;
+ return'<div class="prize"><div class="info"><b>'+p.n+'</b> '+(c?'<span class="badge ok">Closed</span>':'<span class="badge warn">Open</span>')+'<small>'+(p.w.join(', ')||'No winners yet')+'</small><div class="bar"><i style="width:'+(100*p.w.length/p.max)+'%"></i></div></div><b>'+p.w.length+'/'+p.max+'</b></div>'}).join('')}
+var prizesEl=document.getElementById('prizes'),feedEl=document.getElementById('feed');
+function draw(){cnt.textContent=called.length;T.board(board,called,called[called.length-1]);recent.innerHTML=called.slice(-6,-1).reverse().map(function(n){return'<span>'+n+'</span>'}).join('');prizes()}
+function call(){if(!pool.length||!running||paused)return;var n=pool.shift();called.push(n);ball.textContent=n;ball.classList.remove('pop');void ball.offsetWidth;ball.classList.add('pop');draw()}
+function setState(){st.textContent=!running?'Lobby':paused?'Paused':'Running';st.className='badge '+(!running?'':paused?'warn':'ok');
+ next.disabled=!running||paused||auto;pause.disabled=!running;end.disabled=!running;sim.disabled=!running;start.disabled=running;pause.textContent=paused?'▶ Resume':'⏸ Pause'}
+function timerSet(){clearInterval(timer);if(auto&&running&&!paused)timer=setInterval(call,2000)} // 2s for demo (real: 3-15s)
+start.onclick=function(){running=true;paused=false;setState();timerSet();T.toast('Game started — players notified');call()};
+next.onclick=call;
+pause.onclick=function(){paused=!paused;setState();timerSet()};
+end.onclick=function(){running=false;clearInterval(timer);setState();T.toast('Game ended');setTimeout(function(){location.href='results.html'},900)};
+cm.onclick=function(e){if(e.target.tagName!=='BUTTON')return;cm.querySelectorAll('button').forEach(function(b){b.classList.remove('on')});e.target.classList.add('on');
+ auto=e.target.dataset.v==='auto';callLbl.textContent=auto?'Auto (every 6s)':'Manual';setState();timerSet()};
+sim.onclick=function(){var open=Object.keys(P).filter(function(k){return P[k].w.length<P[k].max});
+ var k=open[Math.floor(Math.random()*open.length)],nm=names[Math.floor(Math.random()*names.length)];
+ if(!k){T.toast('All prizes closed');return}
+ if(feedEl.firstChild&&feedEl.firstChild.style)feedEl.innerHTML='';
+ if(P[k].w.indexOf(nm)>-1){feedEl.insertAdjacentHTML('afterbegin','<div>✖ '+nm+' — '+P[k].n+' rejected (already a winner)</div>');return}
+ P[k].w.push(nm);feedEl.insertAdjacentHTML('afterbegin','<div>✔ <b>'+nm+'</b> — '+P[k].n+' accepted (#'+P[k].w.length+' of '+P[k].max+', after call '+called.length+')</div>');
+ if(P[k].w.length>=P[k].max)feedEl.insertAdjacentHTML('afterbegin','<div>🔒 '+P[k].n+' is now closed</div>');
+ prizes();if(Object.keys(P).every(function(x){return P[x].w.length>=P[x].max})){T.toast('All prizes won — game complete!');setTimeout(function(){end.click()},1200)}};
+draw();setState();
+</script></body></html>

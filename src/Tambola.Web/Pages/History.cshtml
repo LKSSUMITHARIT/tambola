@@ -1,0 +1,18 @@
+@page
+@model HistoryModel
+@{ ViewData["Title"] = "My Games"; }
+<h1>My Games</h1><p class="sub">Your past games and prizes.</p>
+<div class="card">
+  @if (Model.Rows.Count == 0) { <p class="sub">You haven't played yet.</p> }
+  else
+  {
+    <table><tr><th>Date</th><th>Room</th><th>Host</th><th>Tickets</th><th>Prizes won</th><th></th></tr>
+    @foreach (var r in Model.Rows)
+    {
+      <tr><td>@r.Date.ToString("yyyy-MM-dd HH:mm")</td><td>@r.Room<br><small>@r.Code · @r.Status</small></td><td>@r.Host</td><td>@r.Tickets</td>
+        <td>@if (r.Wins.Count == 0) { <text>—</text> } else { foreach (var w in r.Wins) { <span class="badge ok">@w</span> } }</td>
+        <td><a href="/Rooms/Results/@r.Code">View</a></td></tr>
+    }
+    </table>
+  }
+</div>

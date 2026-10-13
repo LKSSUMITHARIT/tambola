@@ -1,0 +1,29 @@
+@page
+@model Tambola.Web.Pages.Admin.ReportsModel
+@{ ViewData["Title"] = "Reports"; }
+<div class="row spread"><div><h1>Reports &amp; Audit</h1><p class="sub">Participation, winners and activity log.</p></div>
+  <a class="btn" href="/Admin/Reports?handler=Csv">⬇ Export CSV</a></div>
+<div class="grid g3" style="margin-bottom:16px">
+  <div class="card stat"><b>@Model.Games</b><span>Completed games</span></div>
+  <div class="card stat"><b>@Model.Players</b><span>Unique players</span></div>
+  <div class="card stat"><b>@Model.Prizes</b><span>Prizes awarded</span></div></div>
+<div class="cols">
+  <div class="card"><h2>Leaderboard (prizes won)</h2>
+    <table><tr><th>#</th><th>Employee</th><th>Games</th><th>Wins</th></tr>
+    @{ var i = 0; } @foreach (var l in Model.Leaders) { i++; <tr><td>@i</td><td>@l.Name <small>@l.Code</small></td><td>@l.Games</td><td>@l.Wins</td></tr> }</table></div>
+  <div class="card"><h2>Deleted games <span class="badge">@Model.Deleted.Count</span></h2>
+    <p class="hint">Hosts deleted these games, so users no longer see them. They stay here for reporting and can be restored.</p>
+    @if (Model.Deleted.Count == 0) { <p class="sub">No deleted games.</p> }
+    else
+    {
+      <table><tr><th>Game</th><th>Host</th><th>Deleted</th><th></th></tr>
+      @foreach (var d in Model.Deleted)
+      {
+        <tr><td><b>@d.Name</b><br><small>@d.Code · @d.Status</small></td><td>@d.Host</td><td>@d.DeletedAt?.ToString("yyyy-MM-dd HH:mm")<br><small>@d.DeletedBy</small></td>
+          <td><form method="post" asp-page-handler="Restore" asp-route-code="@d.Code"><button class="btn sm">Restore</button></form></td></tr>
+      }
+      </table>
+    }</div>
+  <div class="card"><h2>Audit log</h2><div class="feed" style="max-height:420px">
+    @foreach (var a in Model.Audit) { <div>@a.At.ToLocalTime().ToString("MM-dd HH:mm") · <b>@a.Action</b> · @a.Actor @(a.Details != null ? "· " + a.Details : "")</div> }</div></div>
+</div>

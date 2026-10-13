@@ -1,0 +1,19 @@
+@page
+@model Tambola.Web.Pages.Account.LoginModel
+@{ ViewData["Title"] = "Sign in"; ViewData["Narrow"] = true; }
+<div class="card" style="margin-top:30px">
+  <h1>Sign in to Tambola 🎯</h1>
+  <p class="sub">Use the domain, user ID and password you registered with.</p>
+  <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+    <label for="Domain">Domain</label>
+    <select asp-for="Domain">
+      <option value="">— choose —</option>
+      @foreach (var d in Model.Domains) { <option value="@d" selected="@(d == Model.Domain)">@d</option> }
+    </select>
+    <label for="UserId">User ID</label><input asp-for="UserId" autocomplete="username" maxlength="64">
+    <label for="Password">Password</label><input asp-for="Password" type="password" autocomplete="current-password">
+    @if (Model.Error != null) { <div class="alert bad">@Model.Error</div> }
+    <div class="row" style="margin-top:16px"><button class="btn primary" type="submit">Sign in</button>
+      <a class="btn" href="/Account/Register">New here? Register</a></div>
+  </form>
+</div>

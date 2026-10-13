@@ -1,0 +1,12 @@
+@page
+@model Tambola.Web.Pages.ErrorModel
+@{
+  ViewData["Title"] = "Error"; ViewData["Narrow"] = true;
+  var (title, text) = Model.Code switch
+  {
+    "403" => ("Access denied", "You do not have permission to open this page."),
+    "404" => ("Not found", "We could not find what you were looking for."),
+    _ => ("Something went wrong", "An unexpected error occurred. Please try again or contact the administrator.")
+  };
+}
+<div class="card" style="margin-top:30px"><h1>@title</h1><p class="sub">@text</p><a class="btn primary" href="/">Back to home</a></div>

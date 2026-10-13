@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Play</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="player-game.html" data-role="player">
+<main>
+<div class="row spread"><div><h1>Friday Fun Tambola <span class="badge ok">Live</span></h1>
+ <p class="sub">Cutting mode: <b id="modeLbl">Manual</b> · Call <span id="cnt">0</span> of 90</p></div>
+ <label class="row" style="margin:0"><input type="checkbox" id="voice"> 🔊 Announce numbers</label></div>
+
+<div class="demo"><b>DEMO CONTROLS</b> (not part of the real UI) —
+ <button class="btn sm" id="next">Call next number</button>
+ <button class="btn sm" id="mine">Call next number from my ticket</button>
+ <button class="btn sm" id="all">Call ALL my ticket numbers</button>
+ <button class="btn sm" id="race">Race: someone grabs last Full House slot</button>
+ <button class="btn sm" id="mode">Switch cutting mode</button>
+ <button class="btn sm" id="reset">Reset</button></div>
+
+<div class="cols">
+ <div class="grid">
+  <div class="card current"><div style="color:var(--muted);font-size:13px">CURRENT NUMBER</div>
+   <div class="ball" id="ball">—</div><div id="said" style="color:var(--muted)">Waiting for first call…</div>
+   <div class="recent" id="recent"></div></div>
+  <div class="card"><h2>Your ticket</h2><div id="tix"></div>
+   <p class="hint"><span style="color:var(--warn)">■</span> called (tap to cut in manual mode) &nbsp; <span style="color:var(--brand)">■</span> cut</p></div>
+ </div>
+ <div class="grid" style="align-self:start">
+  <div class="card"><h2>Claim a prize</h2><div id="prizes"></div></div>
+  <div class="card"><h2>Called numbers</h2><div class="board" id="board"></div></div>
+  <div class="card"><h2>Live feed</h2><div class="feed" id="feed"><div>Game started. Good luck! 🍀</div></div></div>
+ </div>
+</div></main>
+
+<div class="overlay" id="win"><div class="modal"><div class="big">🎉</div><h2>Congratulations!</h2><p id="winTxt"></p>
+ <button class="btn primary" onclick="T.modal('win',false)">Awesome!</button></div></div>
+<div class="overlay" id="late"><div class="modal"><div class="big">⚡</div><h2>So close!</h2><p id="lateTxt"></p>
+ <button class="btn primary" onclick="T.modal('late',false)">Got it — I'll be quicker</button></div></div>
+<div class="overlay" id="bad"><div class="modal"><div class="big">🤔</div><h2>Not a valid claim yet</h2><p id="badTxt"></p>
+ <button class="btn" onclick="T.modal('bad',false)">Back to ticket</button></div></div>
+
+<script src="assets/app.js"></script>
+<script>
+var TK=[[5,0,21,0,43,0,61,74,0],[0,14,27,0,48,55,0,0,83],[9,18,0,36,0,0,68,0,90]];
+var CASES={corners:[5,74,9,90],r1:[5,21,43,61,74],r2:[14,27,48,55,83],r3:[9,18,36,68,90],fh:[5,21,43,61,74,14,27,48,55,83,9,18,36,68,90]};
+var INIT={corners:{name:'Four Corners',n:4,got:3,reward:'Coffee voucher'},r1:{name:'1st Row',n:5,got:3,reward:'Movie tickets'},
+ r2:{name:'2nd Row',n:5,got:1,reward:'Movie tickets'},r3:{name:'3rd Row',n:5,got:0,reward:'Movie tickets'},fh:{name:'Full House',n:1,got:0,reward:'Gift hamper'}};
+var S; // S.srv = authoritative (server) ; S.ui = what this screen knows
+function fresh(){S={pool:T.shuffle(Array.from({length:90},function(_,i){return i+1})),called:[],cut:[],auto:false,
+  srv:JSON.parse(JSON.stringify(INIT)),ui:JSON.parse(JSON.stringify(INIT)),mine:{} /* prize -> 'won'|'barred' */}}
+fresh();
+
+function renderTicket(){var h='<div class="ticket"><div class="thead"><b>Ticket #1</b><span>T-1041</span></div><div class="tgrid">';
+ TK.forEach(function(r){r.forEach(function(v){if(!v){h+='<div class="blank"></div>';return}
+  var cut=S.auto?S.called.indexOf(v)>-1:S.cut.indexOf(v)>-1,called=S.called.indexOf(v)>-1;
+  h+='<div class="num '+(cut?'cut':called?'called':'')+(S.auto?'':' manual')+'" data-n="'+v+'">'+v+'</div>'})});
+ tix.innerHTML=h+'</div></div>'}
+tix.onclick=function(e){var n=+e.target.dataset.n;if(!n||S.auto)return;
+ if(S.called.indexOf(n)<0){T.toast(n+' has not been called yet');return}
+ var i=S.cut.indexOf(n);if(i<0)S.cut.push(n);else S.cut.splice(i,1);renderTicket()};
+
+function renderPrizes(){var h='';Object.keys(S.ui).forEach(function(k){var p=S.ui[k],closed=p.got>=p.n,m=S.mine[k],why='',locked=false;
+ if(m==='won'){locked=true;why='You won this ✔'}else if(m==='barred'){locked=true;why='Invalid claim — locked'}else if(closed){locked=true;why='Prize closed'}
+ h+='<div class="prize"><div class="info"><b>'+p.name+'</b><small>'+p.reward+' · '+p.got+'/'+p.n+' winners</small><div class="bar"><i style="width:'+(100*p.got/p.n)+'%"></i></div></div>'+
+ '<button class="btn sm '+(locked?'locked':'primary')+'" data-k="'+k+'" '+(locked?'disabled title="'+why+'"':'')+'>'+(locked?'🔒 '+why:'Claim')+'</button></div>'});
+ prizes.innerHTML=h}
+
+function render(){cnt.textContent=S.called.length;modeLbl.textContent=S.auto?'Auto (numbers cut for you)':'Manual (tap to cut)';
+ T.board(board,S.called,S.called[S.called.length-1]);
+ recent.innerHTML=S.called.slice(-6,-1).reverse().map(function(n){return'<span>'+n+'</span>'}).join('');renderTicket();renderPrizes()}
+function feed(t){feedEl.insertAdjacentHTML('afterbegin','<div>'+t+'</div>')}var feedEl=document.getElementById('feed');
+function call(n){if(!n||S.called.indexOf(n)>-1)return;S.called.push(n);S.pool.splice(S.pool.indexOf(n),1);
+ ball.textContent=n;ball.classList.remove('pop');void ball.offsetWidth;ball.classList.add('pop');said.textContent='Number '+n+' called';
+ if(voice.checked)T.speak(n);feed('Number <b>'+n+'</b> called');render()}
+
+next.onclick=function(){call(S.pool[0])};
+mine.onclick=function(){var all=[].concat.apply([],TK).filter(Boolean),m=all.filter(function(v){return S.called.indexOf(v)<0});call(m[Math.floor(Math.random()*m.length)])};
+all.onclick=function(){[].concat.apply([],TK).filter(Boolean).forEach(call)};
+race.onclick=function(){S.srv.fh.got=1;T.toast('Server: Full House is now full — your screen has not synced yet')};
+mode.onclick=function(){S.auto=!S.auto;render()};
+reset.onclick=function(){fresh();ball.textContent='—';said.textContent='Waiting for first call…';render()};
+
+/* ----- "server" validation (mirrors FR-39) ----- */
+function serverClaim(k){
+ if(S.mine[k]) return {ok:false,code:'ALREADY'};
+ var needed=CASES[k],covered=needed.every(function(v){return S.called.indexOf(v)>-1}); // called numbers only, never client cuts
+ if(!covered) return {ok:false,code:'INVALID'};
+ var p=S.srv[k]; if(p.got>=p.n) return {ok:false,code:'CLOSED'};
+ p.got++; return {ok:true,slot:p.got,of:p.n,reward:p.reward,name:p.name};}
+
+prizes.onclick=function(e){var b=e.target.closest('button');if(!b||b.disabled)return;var k=b.dataset.k;
+ b.disabled=true;b.textContent='Checking…';              // FR-38 immediate disable + pending
+ setTimeout(function(){var r=serverClaim(k);S.ui[k]=Object.assign({},S.srv[k],{name:INIT[k].name,reward:INIT[k].reward});
+  if(r.ok){S.mine[k]='won';T.confetti();winTxt.innerHTML='You won <b>'+r.name+'</b> — winner <b>'+r.slot+' of '+r.of+'</b>!<br>🎁 '+r.reward;T.modal('win',true);feed('🏆 <b>Anil Kumar (you)</b> won '+r.name)}
+  else if(r.code==='CLOSED'){lateTxt.innerHTML='Your claim for <b>'+INIT[k].name+'</b> was correct, but other players got there first and all prizes are taken.<br><b>Be quicker next time — claim the moment you complete a line!</b>';T.modal('late',true)}
+  else if(r.code==='INVALID'){S.mine[k]='barred';badTxt.textContent='Your ticket does not have all numbers for '+INIT[k].name+' called yet. Check your ticket. This prize is locked for you.';T.modal('bad',true)}
+  render()},600)};
+render();
+</script></body></html>

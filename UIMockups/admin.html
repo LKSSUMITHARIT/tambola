@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="admin.html" data-role="admin">
+<main>
+<h1>Hosts &amp; Employees</h1><p class="sub">Grant or revoke the Host role. Any number of employees can be Hosts.</p>
+<div class="card">
+ <div class="row spread"><input id="q" placeholder="Search name, code, email…" style="max-width:340px"><span class="badge brand" id="cnt"></span></div>
+ <table id="t"><thead><tr><th>Employee</th><th>Code</th><th>Email</th><th>Registered</th><th>Status</th><th>Host</th><th></th></tr></thead><tbody></tbody></table>
+</div></main>
+<script src="assets/app.js"></script>
+<script>
+var E=[['Sumit Harit','EMP10001','sumit.harit@company.com','2026-09-02',1,1],['Priya Rao','EMP10045','priya.rao@company.com','2026-09-03',1,1],
+['Rahul Jain','EMP10077','rahul.jain@company.com','2026-09-03',1,1],['Anil Kumar','EMP10234','anil.kumar@company.com','2026-09-05',1,0],
+['Neha Singh','EMP10310','neha.singh@company.com','2026-09-06',1,0],['Vikram Das','EMP10412','vikram.das@company.com','2026-09-09',0,0],['Meera Nair','EMP10555','meera.nair@company.com','2026-09-10',1,0]];
+function draw(){var q=document.getElementById('q').value.toLowerCase(),h='',n=0;
+ E.forEach(function(e,i){if((e.join(' ')).toLowerCase().indexOf(q)<0)return;n++;
+ h+='<tr><td><b>'+e[0]+'</b></td><td>'+e[1]+'</td><td>'+e[2]+'</td><td>'+e[3]+'</td><td>'+(e[4]?'<span class="badge ok">Active</span>':'<span class="badge bad">Deactivated</span>')+'</td>'+
+ '<td>'+(e[5]?'<span class="badge brand">Host</span>':'—')+'</td><td class="row"><button class="btn sm '+(e[5]?'danger':'primary')+'" data-h="'+i+'">'+(e[5]?'Revoke Host':'Make Host')+'</button>'+
+ '<button class="btn sm" data-a="'+i+'">'+(e[4]?'Deactivate':'Activate')+'</button></td></tr>'});
+ document.querySelector('#t tbody').innerHTML=h;document.getElementById('cnt').textContent=n+' employees · '+E.filter(function(e){return e[5]}).length+' hosts'}
+document.getElementById('q').oninput=draw;
+document.querySelector('#t').onclick=function(ev){var b=ev.target;if(b.dataset.h!==undefined){E[b.dataset.h][5]^=1;T.toast('Host role updated (audited)')}
+ if(b.dataset.a!==undefined){E[b.dataset.a][4]^=1;T.toast('Employee status updated')}draw()};
+draw();
+</script></body></html>

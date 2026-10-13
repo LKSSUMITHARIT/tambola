@@ -1,0 +1,24 @@
+@page
+@model RegisterModel
+@{ ViewData["Title"] = "Register"; ViewData["Narrow"] = true; }
+<div class="card" style="margin-top:30px">
+  @if (Model.Deactivated)
+  {
+    <h1>Account deactivated</h1>
+    <div class="alert bad">Your account has been deactivated by an administrator. Please contact the Admin.</div>
+  }
+  else
+  {
+    <h1>Welcome to Tambola 👋</h1>
+    <p class="sub">First time here? Link your employee details. This is a one-time step.</p>
+    <form method="post">
+      <label>Windows account</label><input value="@Model.WindowsUser" readonly>
+      <label for="DisplayName">Display name</label><input asp-for="DisplayName" maxlength="60">
+      <label for="EmployeeCode">Employee Code</label><input asp-for="EmployeeCode" placeholder="e.g. EMP10234" maxlength="20" autocomplete="off">
+      <div class="hint">One Employee Code can be linked to one email only.</div>
+      <label for="Email">Company email</label><input asp-for="Email" type="email" placeholder="name@company.com">
+      @if (Model.Error != null) { <div class="alert bad">@Model.Error</div> }
+      <div class="row" style="margin-top:16px"><button class="btn primary" type="submit">Register</button></div>
+    </form>
+  }
+</div>

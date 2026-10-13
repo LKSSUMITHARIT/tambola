@@ -1,0 +1,31 @@
+@page
+@model Tambola.Web.Pages.Admin.IndexModel
+@inject Microsoft.Extensions.Options.IOptions<Tambola.Web.Services.AppOptions> AppOpt
+@{ ViewData["Title"] = "Hosts & Employees"; var appOpt = AppOpt.Value; }
+<h1>Hosts &amp; Employees</h1>
+@if (Model.TempPasswordInfo != null)
+{
+  <div class="alert">Temporary password (shown once — give it to the employee, who must change it at next login): <b style="font-family:monospace;user-select:all">@Model.TempPasswordInfo</b></div>
+}
+<p class="sub">Grant or revoke the Host role. Any number of employees can be Hosts.</p>
+<div class="card">
+  <form method="get" class="row spread"><input name="Q" value="@Model.Q" placeholder="Search name, code, email…" style="max-width:340px">
+    <span class="badge brand">@Model.Employees.Count employees · @Model.Employees.Count(e => e.IsHost) hosts</span></form>
+  <table><thead><tr><th>Employee</th><th>Code</th><th>Email</th><th>Registered</th><th>Status</th><th>Host</th><th></th></tr></thead><tbody>
+  @foreach (var e in Model.Employees)
+  {
+    <tr><td><b>@e.DisplayName</b><br><small>@e.WindowsUser</small></td><td>@e.EmployeeCode</td><td>@e.Email</td><td>@e.RegisteredAt.ToString("yyyy-MM-dd")</td>
+      <td>@if (e.IsActive) { <span class="badge ok">Active</span> } else { <span class="badge bad">Deactivated</span> }</td>
+      <td>@if (e.IsHost) { <span class="badge brand">Host</span> } else { <text>—</text> }</td>
+      <td><div class="row">
+        <form method="post" asp-page-handler="Host" asp-route-id="@e.Id" asp-route-on="@(!e.IsHost)"><input type="hidden" name="Q" value="@Model.Q"><button class="btn sm @(e.IsHost ? "danger" : "primary")">@(e.IsHost ? "Revoke Host" : "Make Host")</button></form>
+        <form method="post" asp-page-handler="Active" asp-route-id="@e.Id" asp-route-on="@(!e.IsActive)"><input type="hidden" name="Q" value="@Model.Q"><button class="btn sm">@(e.IsActive ? "Deactivate" : "Activate")</button></form>
+        @if (appOpt.IsManual)
+        {
+          <form method="post" asp-page-handler="ResetPassword" asp-route-id="@e.Id" onsubmit="return confirm('Reset the password for @e.DisplayName? They must choose a new one at next login.');"><input type="hidden" name="Q" value="@Model.Q"><button class="btn sm">Reset password</button></form>
+        }
+      </div></td></tr>
+  }
+  </tbody></table>
+  @if (Model.Employees.Count == 0) { <p class="sub">No employees found.</p> }
+</div>
