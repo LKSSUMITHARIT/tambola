@@ -103,7 +103,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7        # only to read deploy/remote-deploy.sh
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: tambola-package
           path: out
