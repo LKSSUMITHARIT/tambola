@@ -35,9 +35,9 @@ jobs:
       package: ${{ steps.pack.outputs.package }}
       sha256: ${{ steps.pack.outputs.sha256 }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
 
@@ -74,7 +74,7 @@ jobs:
           echo "### Package" >> "$GITHUB_STEP_SUMMARY"
           echo "\`$PKG\`  SHA256 \`$SHA\`" >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: tambola-package
           path: |
@@ -101,9 +101,9 @@ jobs:
       name: production
       url: ${{ env.SITE_URL }}
     steps:
-      - uses: actions/checkout@v4        # only to read deploy/remote-deploy.sh
+      - uses: actions/checkout@v7        # only to read deploy/remote-deploy.sh
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: tambola-package
           path: out
