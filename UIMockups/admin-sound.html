@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sound settings</title><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/v2.css"></head>
+<body data-page="admin-sound.html" data-role="admin">
+<main style="max-width:900px">
+<h1>Sound settings</h1>
+<p class="sub">Applies to everyone (host and players) in every room. Players cannot change the caller voice; they can only mute on their own device (if allowed below).</p>
+<div class="card">
+ <div class="setting"><label>Number announcements<small>Default state when a page opens</small></label>
+  <div class="pill-toggle" data-group><button type="button" class="on">On</button><button type="button">Off</button></div></div>
+ <div class="setting"><label>Caller voice<small>Funny Hindi plays the recorded clips below</small></label>
+  <select style="max-width:260px"><option>Funny Hindi (recorded clips)</option><option>Classic (browser voice, English)</option></select></div>
+ <div class="setting"><label>If a clip is missing<small>Used only for numbers without a clip</small></label>
+  <select style="max-width:260px"><option>Speak the joke with the browser's Hindi voice</option><option>Classic English caller</option></select></div>
+ <div class="setting"><label>Volume<small id="vol">80%</small></label>
+  <input type="range" min="0" max="100" value="80" style="max-width:260px" oninput="document.getElementById('vol').textContent=this.value+'%'"></div>
+ <div class="setting"><label>Players can mute on their device<small>Local only; does not change the setting for others</small></label>
+  <div class="pill-toggle" data-group><button type="button" class="on">Yes</button><button type="button">No</button></div></div>
+ <div class="row" style="margin-top:14px"><button class="btn primary" onclick="T.toast('Saved. Open rooms pick this up within a few seconds.')">Save settings</button>
+  <span class="hint">Changes apply live to open rooms (mock: nothing is stored).</span></div>
+</div>
+
+<div class="card" style="margin-top:14px"><h2>Caller clips <span class="badge ok">90 / 90</span></h2>
+ <p class="hint" style="margin-top:0">Tap a number to hear its clip. To replace a clip, upload a new mp3 for that number (planned) or overwrite the file in <code>wwwroot/audio/hi/</code>.</p>
+ <div class="clips" id="clips"></div>
+ <audio id="au"></audio></div>
+</main>
+<script src="assets/app.js"></script><script src="assets/v2.js"></script>
+<script>
+var h = ''; for (var i = 1; i <= 90; i++) h += '<button type="button" data-n="' + i + '">' + i + '</button>'; document.getElementById('clips').innerHTML = h;
+document.getElementById('clips').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return; var a = document.getElementById('au');
+  a.src = '../src/Tambola.Web/wwwroot/audio/hi/' + b.dataset.n + '.mp3'; a.play().catch(function () { T.toast('Clip ' + b.dataset.n + ' could not be played'); });
+};
+document.querySelectorAll('[data-group]').forEach(function (g) { g.onclick = function (e) { var b = e.target.closest('button'); if (b) [].forEach.call(g.children, function (x) { x.classList.toggle('on', x === b); }); }; });
+</script></body></html>

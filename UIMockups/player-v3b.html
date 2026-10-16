@@ -1,0 +1,61 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Play — Design B (Arena)</title><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/v2.css"><link rel="stylesheet" href="assets/v3.css"></head>
+<body class="v3 dB" data-page="player-v3b.html" data-role="player">
+<main>
+<div class="v3head"><div><h1>Friday Fun Tambola <span class="badge ok">Live</span> <span class="badge brand">Design B · Arena</span></h1>
+ <p class="sub">Host: Amit · Auto calling every 3s (demo) · Cutting: Auto</p></div>
+ <div class="code" style="font-size:18px;padding:5px 12px">ZBNAQL</div></div>
+<div id="demo"></div>
+
+<div class="hero">
+ <div class="ringwrap"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="46"/><circle class="fg" id="ringfg" cx="50" cy="50" r="46"/></svg>
+  <div class="ball" id="ball">—</div></div>
+ <div class="mid"><div class="said" id="said">Waiting for the first call…</div><div class="recent" id="recent"></div></div>
+ <div class="cntbox"><b><span id="cnt">0</span></b>of 90 called</div>
+</div>
+
+<div class="gB">
+ <div class="left">
+  <div class="row spread" style="margin-bottom:6px"><h3 style="margin:0">Your tickets <span class="badge" id="tcount"></span></h3>
+   <span class="hint" style="margin:0">Tap a ticket to zoom · tap a number to highlight it everywhere</span></div>
+  <div class="tickets" id="tix"></div>
+ </div>
+ <div class="rail" id="rail">
+  <div class="row spread" style="display:none" id="railTop"><b>Prizes &amp; more</b><button class="btn sm" id="railClose">Close ✕</button></div>
+  <div class="cx" data-id="prizes"><div class="cx-head">🏆 Prizes <span class="badge ok" data-readycount style="margin-left:6px">0</span></div><div class="cx-body"><div id="prizes" style="display:grid;gap:8px"></div></div></div>
+  <div class="cx" data-id="board"><div class="cx-head">Called numbers</div><div class="cx-body"><div class="board" id="board"></div></div></div>
+  <div class="cx" data-id="feed"><div class="cx-head">Live feed</div><div class="cx-body"><div class="feed" id="feed"></div></div></div>
+  <div class="cx" data-id="players"><div class="cx-head">Players <span class="badge ok">12</span></div><div class="cx-body">
+   <ul class="list"><li><span class="dot"></span>Anil Kumar (you)</li><li><span class="dot"></span>Priya S</li><li><span class="dot"></span>Rahul M</li><li class="hint">+ 9 more…</li></ul></div></div>
+ </div>
+</div>
+</main>
+<button class="btn primary fab" id="fab">🏆 Prizes <span class="n" data-readycount>0</span></button>
+<div class="overlay" id="zoom"><div class="zoomT" id="zoomBody"></div></div>
+<script src="assets/app.js"></script><script src="assets/v2.js"></script><script src="assets/v3.js"></script>
+<script>
+function $(id) { return document.getElementById(id); }
+G.init({
+  prizeFn: function (f) {
+    var pct = Math.min(100, 100 * f.taken / f.p.n);
+    return '<div class="pcard ' + (f.ready > -1 ? 'ready' : '') + (f.off ? ' off' : '') + '" title="' + f.tip + '">' + f.icon +
+      '<div class="nm">' + f.name + '<small>' + f.taken + '/' + f.p.n + ' won' + (f.p.mine.length ? ' · you ' + f.p.mine.length + '/' + G.S.tickets.length : '') + '</small><div class="meter"><i style="width:' + pct + '%"></i></div></div>' +
+      '<button class="btn sm ' + (f.ready > -1 ? 'ok' : f.off ? '' : 'primary') + '" data-claim="' + f.i + '" ' + (f.off ? 'disabled' : '') + '>' + (f.ready > -1 ? '🎯 Claim now' : f.closed ? '🔒' : f.all ? '✔' : 'Claim') + '</button></div>';
+  },
+  onCall: function () { var r = $('ringfg'); r.classList.remove('run'); void r.getBBox(); if ($('dAuto').checked) r.classList.add('run'); },
+  onRender: function () {}
+});
+$('dAuto').addEventListener('change', function () { var r = $('ringfg'); r.classList.remove('run'); void r.getBBox(); if (this.checked) r.classList.add('run'); });
+$('prizes').onclick = function (e) { var b = e.target.closest('[data-claim]'); if (b) G.claim(+b.dataset.claim); };
+// tap a ticket's header/border to zoom it
+$('tix').addEventListener('click', function (e) {
+  if (e.target.closest('[data-n]')) return;
+  var t = e.target.closest('.t3'); if (!t) return;
+  $('zoomBody').innerHTML = G.ticketHTML(+t.dataset.ti) + '<p style="text-align:center;margin-top:8px"><button class="btn" type="button" id="zClose">Close</button></p>';
+  $('zoom').classList.add('show');
+});
+$('zoom').addEventListener('click', function (e) { if (e.target === this || e.target.id === 'zClose') this.classList.remove('show'); });
+// mobile: rail is a bottom sheet
+function sheet(open) { $('rail').classList.toggle('open', open); $('railTop').style.display = open && innerWidth <= 900 ? 'flex' : 'none'; }
+$('fab').onclick = function () { sheet(true); }; $('railClose').onclick = function () { sheet(false); };
+</script></body></html>

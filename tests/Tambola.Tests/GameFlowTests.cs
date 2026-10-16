@@ -415,6 +415,18 @@ public class GameFlowTests : IAsyncLifetime
         Assert.Equal(System.Net.HttpStatusCode.Redirect, ok.StatusCode);                    // registered + signed in
         Assert.Equal(System.Net.HttpStatusCode.OK, (await http.GetAsync("/")).StatusCode);   // home is reachable
 
+        // the Sign out button in the layout must carry an anti-forgery token (a plain action= form does not, and the POST is then rejected)
+        var homeHtml = await (await http.GetAsync("/")).Content.ReadAsStringAsync();
+        var logoutForm = System.Text.RegularExpressions.Regex.Match(homeHtml, "<form[^>]*Logout[^>]*>.*?</form>", System.Text.RegularExpressions.RegexOptions.Singleline);
+        Assert.True(logoutForm.Success, "Sign out form is on the page");
+        Assert.Contains("__RequestVerificationToken", logoutForm.Value);
+        var layoutToken = System.Text.RegularExpressions.Regex.Match(logoutForm.Value, "name=\"__RequestVerificationToken\"[^>]*value=\"([^\"]+)\"").Groups[1].Value;
+        var viaLayout = await http.PostAsync("/Account/ChangePassword?handler=Logout", new FormUrlEncodedContent(new Dictionary<string, string> { ["__RequestVerificationToken"] = layoutToken }));
+        Assert.Equal(System.Net.HttpStatusCode.Redirect, viaLayout.StatusCode);     // signed out using the layout's own form
+        Assert.Equal(System.Net.HttpStatusCode.Redirect, (await http.GetAsync("/")).StatusCode);
+        var relog = await Post("/Account/Login", new() { ["Domain"] = "CORP", ["UserId"] = "sam", ["Password"] = "longenough1" });
+        Assert.Equal(System.Net.HttpStatusCode.Redirect, relog.StatusCode);
+
         // sign out, then a wrong password is refused and the right one works
         var logout = await Post("/Account/ChangePassword?handler=Logout", new());
         Assert.Equal(System.Net.HttpStatusCode.Redirect, logout.StatusCode);
@@ -482,5 +494,84 @@ public class GameFlowTests : IAsyncLifetime
 
         // a Windows user who never registered cannot use the hub
         await Assert.ThrowsAnyAsync<Exception>(async () => { await using var ghost = await Connect("ghost"); await ghost.InvokeAsync<RoomStateDto>("JoinRoom", code); });
+    }
+
+    // ───────────── v1.2: a prize can be won once per ticket ─────────────
+
+    [Fact]
+    public async Task A_prize_can_be_won_once_per_ticket_by_the_same_player()
+    {
+        var emps = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<EmployeeService>();
+        var hostId = await Register("hmt", "EHmt"); await Register("pmt", "EPmt"); await Register("qmt", "EQmt");
+        await emps.SetHostAsync("t", hostId, true);
+        var game = _factory.Services.GetRequiredService<GameService>();
+        var code = await game.CreateRoomAsync(hostId, new CreateRoomRequest("Multi", 10, 3, CallMode.Manual, 6, CutMode.Auto,
+            new() { new(PrizePattern.FullHouse, 4, null) }, 3));
+        await using var host = await Connect("hmt"); await using var p = await Connect("pmt"); await using var q = await Connect("qmt");
+        foreach (var c in new[] { host, p, q }) await c.InvokeAsync<RoomStateDto>("JoinRoom", code);
+        var pt = new List<TicketDto>(); for (var i = 0; i < 3; i++) pt.Add(await p.InvokeAsync<TicketDto>("BuyTicket", code));
+        var qt = await q.InvokeAsync<TicketDto>("BuyTicket", code);
+        await host.InvokeAsync<bool>("Start", code);
+        for (var i = 0; i < 90; i++) await host.InvokeAsync<bool>("CallNext", code);
+
+        var w1 = await p.InvokeAsync<ClaimOutcome>("Claim", code, pt[0].id, "FullHouse");
+        Assert.Equal("won", w1.status); Assert.Equal(1, w1.slot);
+        // the same ticket cannot win the same prize twice
+        Assert.Equal("rejected", (await p.InvokeAsync<ClaimOutcome>("Claim", code, pt[0].id, "FullHouse")).status);
+        // but the same player can win it again with another ticket
+        var w2 = await p.InvokeAsync<ClaimOutcome>("Claim", code, pt[1].id, "FullHouse");
+        Assert.Equal("won", w2.status); Assert.Equal(2, w2.slot);
+        var mid = await p.InvokeAsync<RoomStateDto>("GetState", code);
+        Assert.False(mid.mine.ContainsKey("FullHouse"));                       // one ticket has not won yet -> still claimable
+        Assert.Equal(new[] { pt[0].id, pt[1].id }, mid.wonTickets!["FullHouse"].OrderBy(x => x));
+        var w3 = await p.InvokeAsync<ClaimOutcome>("Claim", code, pt[2].id, "FullHouse");
+        Assert.Equal("won", w3.status); Assert.Equal(3, w3.slot);
+        Assert.Equal("won", (await p.InvokeAsync<RoomStateDto>("GetState", code)).mine["FullHouse"]);   // every ticket has won
+        // the quota (4) is shared: another player takes the last slot, then the prize is closed
+        Assert.Equal("won", (await q.InvokeAsync<ClaimOutcome>("Claim", code, qt.id, "FullHouse")).status);
+        Assert.Equal("Completed", (await host.InvokeAsync<RoomStateDto>("GetState", code)).status);
+    }
+
+    // ───────────── v1.2: admin-managed sound settings and the new game pages ─────────────
+
+    private static HttpRequestMessage AsUser(string user, string url) =>
+        new(HttpMethod.Get, url) { Headers = { { "Cookie", "dev-user=CORP%5C" + user } } };
+
+    [Fact]
+    public async Task Sound_settings_are_global_admin_only_and_reach_every_page()
+    {
+        await Register("admin", "EADM"); await Register("pat", "EPAT");
+        var settings = _factory.Services.GetRequiredService<SettingsService>();
+        Assert.True(settings.Sound.AllowMute);                                   // defaults until the Admin saves
+        await settings.SaveSoundAsync(new SoundSettings(false, "classic", "classic", 35, false), "CORP\admin");
+        await settings.LoadAsync();                                              // proves it was persisted, not just cached
+        Assert.Equal(35, settings.Sound.Volume); Assert.Equal("classic", settings.Sound.CallerStyle);
+
+        var client = _factory.CreateClient(new() { AllowAutoRedirect = false });
+        var html = await (await client.SendAsync(AsUser("pat", "/"))).Content.ReadAsStringAsync();
+        Assert.Contains("data-caller=\"classic\"", html); Assert.Contains("data-volume=\"35\"", html);
+        Assert.Contains("data-allow-mute=\"no\"", html); Assert.DoesNotContain("id=\"soundBtn\"", html);   // mute button hidden when the Admin disallows it
+        Assert.DoesNotContain("id=\"callerStyle\"", html);                      // no per-user caller selector any more
+
+        Assert.NotEqual(System.Net.HttpStatusCode.OK, (await client.SendAsync(AsUser("pat", "/Admin/Sound"))).StatusCode);
+        Assert.Equal(System.Net.HttpStatusCode.OK, (await client.SendAsync(AsUser("admin", "/Admin/Sound"))).StatusCode);
+    }
+
+    [Fact]
+    public async Task Player_and_host_game_pages_render_with_the_tabbed_layout()
+    {
+        var emps = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<EmployeeService>();
+        var hostId = await Register("hpg", "EHPG"); await Register("ppg", "EPPG");
+        await emps.SetHostAsync("t", hostId, true);
+        var code = await _factory.Services.GetRequiredService<GameService>().CreateRoomAsync(hostId, new CreateRoomRequest("Pages", 10, 2, CallMode.Manual, 6, CutMode.Auto,
+            new() { new(PrizePattern.FullHouse, 2, null) }, 3));
+        var client = _factory.CreateClient(new() { AllowAutoRedirect = false });
+        foreach (var (user, url, marker) in new[] { ("ppg", "/Rooms/Play/" + code, "id=\"tix\""), ("hpg", "/Rooms/Host/" + code, "id=\"board\"") })
+        {
+            var res = await client.SendAsync(AsUser(user, url));
+            Assert.Equal(System.Net.HttpStatusCode.OK, res.StatusCode);
+            var html = await res.Content.ReadAsStringAsync();
+            Assert.Contains("class=\"panelC\"", html); Assert.Contains("id=\"dock\"", html); Assert.Contains(marker, html);
+        }
     }
 }

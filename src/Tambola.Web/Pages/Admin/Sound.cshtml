@@ -1,0 +1,39 @@
+@page
+@model Tambola.Web.Pages.Admin.SoundModel
+@{ ViewData["Title"] = "Sound settings"; ViewData["Narrow"] = false; }
+<h1>Sound settings</h1>
+<p class="sub">Applies to everyone (hosts and players) in every room. Players cannot change the caller voice; they can only mute on their own device, if you allow it below.</p>
+@if (Model.Saved) { <div class="alert info">Saved. Open rooms pick the new settings up within a few seconds.</div> }
+<form method="post" class="card" style="max-width:860px">
+  <div class="setting"><label>Number announcements<small>Default state when a page opens</small></label>
+    <select name="Enabled" style="max-width:260px"><option value="true" selected="@Model.Enabled">On</option><option value="false" selected="@(!Model.Enabled)">Off</option></select></div>
+  <div class="setting"><label>Caller voice<small>Funny Hindi plays the recorded clips below</small></label>
+    <select name="CallerStyle" style="max-width:260px"><option value="hindi" selected="@(Model.CallerStyle == "hindi")">Funny Hindi (recorded clips)</option><option value="classic" selected="@(Model.CallerStyle == "classic")">Classic (browser voice, English)</option></select></div>
+  <div class="setting"><label>If a clip is missing<small>Used only for numbers without a clip</small></label>
+    <select name="Fallback" style="max-width:260px"><option value="hindi" selected="@(Model.Fallback == "hindi")">Browser Hindi voice reads the joke</option><option value="classic" selected="@(Model.Fallback == "classic")">Classic English caller</option></select></div>
+  <div class="setting"><label>Volume<small id="volLbl">@Model.Volume%</small></label>
+    <input type="range" name="Volume" min="0" max="100" value="@Model.Volume" style="max-width:260px" oninput="document.getElementById('volLbl').textContent=this.value+'%'"></div>
+  <div class="setting"><label>Players can mute on their device<small>Local only; does not change anything for others</small></label>
+    <select name="AllowMute" style="max-width:260px"><option value="true" selected="@Model.AllowMute">Yes</option><option value="false" selected="@(!Model.AllowMute)">No (sound always follows the setting above)</option></select></div>
+  <div class="row" style="margin-top:14px"><button class="btn primary" type="submit">Save settings</button></div>
+</form>
+
+<div class="card" style="max-width:860px;margin-top:14px"><h2>Caller clips <span class="badge @(Model.Clips.Count == 90 ? "ok" : "warn")">@Model.Clips.Count / 90</span></h2>
+  <p class="hint" style="margin-top:0">Tap a number to hear its clip. To replace one, overwrite <code>wwwroot/audio/hi/{number}.mp3</code> (mono mp3, 2–5 seconds). Numbers in red have no clip and use the fallback voice.</p>
+  <div class="clips">
+    @for (var n = 1; n <= 90; n++)
+    {
+      var has = Model.Clips.Contains(n);
+      <button type="button" data-n="@n" class="@(has ? "" : "miss")">@n</button>
+    }
+  </div>
+  <audio id="au"></audio>
+</div>
+@section Scripts {
+  <script>
+    $('.clips').on('click', 'button', function () {
+      var a = document.getElementById('au'); a.volume = $('input[name=Volume]').val() / 100; a.src = '/audio/hi/' + $(this).data('n') + '.mp3';
+      a.play().catch(function () { T.toast('No clip for ' + $(this).data('n')); }.bind(this));
+    });
+  </script>
+}

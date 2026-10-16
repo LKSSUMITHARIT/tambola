@@ -77,6 +77,7 @@ builder.Services.AddAuthorization(o =>
 
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddSingleton<GameService>();
+builder.Services.AddSingleton<SettingsService>();
 builder.Services.AddHostedService<AutoCallerService>();
 builder.Services.AddSignalR();
 builder.Services.AddRazorPages(o =>
@@ -102,6 +103,7 @@ using (var scope = app.Services.CreateScope())
     await db.Database.EnsureCreatedAsync();
     await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL;");
     await SchemaUpgrader.UpgradeAsync(db);   // adds columns introduced after a database was first created
+    await scope.ServiceProvider.GetRequiredService<SettingsService>().LoadAsync();
 }
 
 if (opts.IsDev)
@@ -121,7 +123,14 @@ app.UseStatusCodePages(ctx =>
         http.Response.Redirect("/Error?code=" + http.Response.StatusCode);
     return Task.CompletedTask;
 });
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    // caller voice clips are replaceable recordings: let clients cache them for an hour (the service worker refreshes in the background)
+    OnPrepareResponse = ctx =>
+    {
+        if (ctx.Context.Request.Path.StartsWithSegments("/audio")) ctx.Context.Response.Headers.CacheControl = "public,max-age=3600";
+    }
+});
 app.UseRouting();
 app.UseAuthentication();
 

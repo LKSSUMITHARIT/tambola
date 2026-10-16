@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Host console (new layout)</title><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/v2.css"></head>
+<body data-page="host-console-v2.html" data-role="host">
+<main class="wide">
+<div class="row spread v2head"><div><h1>Friday Fun Tambola <span class="badge ok" id="st">Lobby</span></h1>
+ <p class="sub">Calling: <b id="callLbl">Manual</b> · Cutting: Auto · <span id="pc">12</span> players · Share the code:</p></div>
+ <div class="code" style="font-size:20px;padding:6px 12px">ZBNAQL</div></div>
+
+<div class="game2">
+ <div class="left">
+  <div class="ctl card" style="padding:8px 10px">
+   <button class="btn ok sm" id="start">▶ Start game</button>
+   <button class="btn primary sm" id="next" disabled>🎱 Call next</button>
+   <div class="pill-toggle" id="cm"><button type="button" data-v="Manual" class="on">Manual</button><button type="button" data-v="Auto">Auto</button></div>
+   <select id="interval" title="Auto interval (seconds)"><option>3</option><option>4</option><option>5</option><option selected>6</option><option>8</option><option>10</option></select>
+   <button class="btn sm" id="pause" disabled>⏸ Pause</button>
+   <button class="btn danger sm" id="end">■ End game</button>
+   <span class="hint" style="margin:0 0 0 auto">Numbers are announced on this device with the caller voice the Admin selected.</span>
+  </div>
+  <div class="prow" id="prizes"></div>
+  <h3 style="margin:0 0 6px">Board <span class="badge" id="cnt">0 / 90</span></h3>
+  <div class="bigboard" id="board"></div>
+ </div>
+ <div class="side">
+  <div class="card curr" id="curr"><div class="hint">CURRENT NUMBER</div>
+   <div class="ball" id="ball">—</div><div class="recent" id="recent"></div></div>
+  <div class="cx" data-id="history"><div class="cx-head">Called numbers (history)</div><div class="cx-body"><div class="board" id="hist"></div></div></div>
+  <div class="cx" data-id="claims"><div class="cx-head">Claims &amp; feed</div><div class="cx-body"><div class="feed" id="feed"><div>Room created. Waiting for players…</div></div></div></div>
+  <div class="cx" data-id="players"><div class="cx-head">Players <span class="badge ok">12</span></div><div class="cx-body">
+   <ul class="list"><li><span class="dot"></span>Anil Kumar · 3 tickets</li><li><span class="dot"></span>Priya S · 2 tickets</li><li><span class="dot"></span>Rahul M · 1 ticket</li><li class="hint">+ 9 more…</li></ul>
+   <button class="btn sm" id="lock" type="button">🔒 Lock room</button></div></div>
+ </div>
+</div>
+</main>
+<script src="assets/app.js"></script><script src="assets/v2.js"></script>
+<script>
+function $(id) { return document.getElementById(id); }
+var called = [], running = false, prizes = [['EarlyFive', 2, []], ['FourCorners', 1, []], ['FirstRow', 1, []], ['SecondRow', 1, []], ['ThirdRow', 1, []], ['FullHouse', 5, ['Priya S', 'Anil Kumar (T#2)', 'Anil Kumar (T#1)']]];
+function render() {
+  var last = called[called.length - 1];
+  T.board($('hist'), called, last);
+  var h = ''; for (var i = 1; i <= 90; i++) h += '<div class="' + (called.indexOf(i) > -1 ? 'on' : '') + (i === last ? ' last' : '') + '">' + i + '</div>'; $('board').innerHTML = h;
+  $('ball').textContent = last || '—'; $('cnt').textContent = called.length + ' / 90';
+  $('recent').innerHTML = called.slice(-6, -1).reverse().map(function (n) { return '<span>' + n + '</span>'; }).join('');
+  $('prizes').innerHTML = '<span class="lbl">Prizes</span>' + prizes.map(function (p) {
+    return '<span class="pz static ' + (p[2].length >= p[1] ? 'done' : '') + '" title="' + (p[2].join(', ') || 'No winners yet') + '">' + V2.pattern(V2.P[p[0]].cells) + V2.P[p[0]].name + ' <small>' + p[2].length + '/' + p[1] + '</small></span>';
+  }).join('');
+}
+$('start').onclick = function () { running = true; $('st').textContent = 'Live'; $('start').disabled = true; $('next').disabled = false; $('pause').disabled = false; };
+$('next').onclick = function () { var x; do { x = 1 + Math.floor(Math.random() * 90); } while (called.indexOf(x) > -1); called.push(x); var d = document.createElement('div'); d.innerHTML = 'Number <b>' + x + '</b> called'; $('feed').prepend(d); render(); };
+$('cm').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; [].forEach.call($('cm').children, function (x) { x.classList.toggle('on', x === b); }); $('callLbl').textContent = b.dataset.v; };
+V2.collapsibles(); render();
+</script></body></html>

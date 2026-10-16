@@ -23,7 +23,7 @@ $(function () {
     $('#cnt').text(S.called.length);
     var last = S.called[S.called.length - 1];
     T.board(document.getElementById('board'), S.called, last);
-    $('#recent').html(S.called.slice(-6, -1).reverse().map(function (n) { return '<span>' + n + '</span>'; }).join(''));
+    $('#recent').html(S.called.slice(-8, -1).reverse().map(function (n) { return '<span>' + n + '</span>'; }).join(''));
     if (last) $('#ball').text(last);
     var msg = S.status === 'Lobby' ? 'Waiting for players to join and take tickets. Start when ready.' :
       paused ? 'Game paused.' : S.called.length >= 90 ? 'All 90 numbers called. End the game when ready.' : '';
@@ -35,7 +35,7 @@ $(function () {
   function renderPrizes() {
     $('#prizes').html(S.prizes.map(function (p) {
       var pct = Math.min(100, 100 * p.winners.length / p.winnerCount);
-      return '<div class="prize"><div class="info"><b>' + T.esc(p.name) + '</b> ' + (p.closed ? '<span class="badge ok">Closed</span>' : '<span class="badge warn">Open</span>') +
+      return '<div class="pr' + (p.closed ? ' off' : '') + '">' + T.patternPreview(p.pattern) + '<div class="nm">' + T.esc(p.name) + ' ' + (p.closed ? '<span class="badge ok">Closed</span>' : '<span class="badge warn">Open</span>') +
         '<small>' + (p.reward ? T.esc(p.reward) + ' · ' : '') + (T.esc(p.winners.join(', ')) || 'No winners yet') + '</small><div class="bar"><i style="width:' + pct + '%"></i></div></div><b>' + p.winners.length + '/' + p.winnerCount + '</b></div>';
     }).join(''));
   }
@@ -58,6 +58,8 @@ $(function () {
   $('#interval').on('change', function () { run('SetCalling', S.callMode, +$(this).val()).then(refresh); });
   $('#lock').on('click', function () { run('SetLocked', !S.locked).then(refresh); });
   $('#players').on('click', '[data-rm]', function () { if (confirm('Remove this player from the room?')) run('RemovePlayer', +$(this).data('rm')); });
+
+  T.initTabs('prizes');
 
   T.connect(code, {
     NumberCalled: function (m) {

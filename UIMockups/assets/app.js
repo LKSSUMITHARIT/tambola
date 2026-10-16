@@ -3,9 +3,9 @@
   var role = (document.body.dataset.role || 'player');
   var page = document.body.dataset.page || '';
   var links = {
-    player: [['dashboard.html', 'Home'], ['lobby.html', 'Lobby'], ['player-game.html', 'Play'], ['results.html', 'Results'], ['history.html', 'My Games']],
-    host: [['dashboard.html', 'Home'], ['host-create.html', 'Create Room'], ['host-console.html', 'Host Console'], ['results.html', 'Results'], ['history.html', 'My Games']],
-    admin: [['admin.html', 'Hosts & Employees'], ['reports.html', 'Reports'], ['dashboard.html', 'Home']]
+    player: [['dashboard.html', 'Home'], ['lobby.html', 'Lobby'], ['player-game.html', 'Play'], ['player-game-v2.html', 'Play (new layout)'], ['results.html', 'Results'], ['history.html', 'My Games']],
+    host: [['dashboard.html', 'Home'], ['host-create.html', 'Create Room'], ['host-console.html', 'Host Console'], ['host-console-v2.html', 'Host Console (new layout)'], ['results.html', 'Results'], ['history.html', 'My Games']],
+    admin: [['admin.html', 'Hosts & Employees'], ['reports.html', 'Reports'], ['admin-sound.html', 'Sound settings'], ['dashboard.html', 'Home']]
   }[role] || [];
   var nav = links.map(function (l) { return '<a href="' + l[0] + '"' + (l[0] === page ? ' class="on"' : '') + '>' + l[1] + '</a>'; }).join('');
   var who = { player: ['AK', 'CORP\\anil.kumar', 'Player'], host: ['SH', 'CORP\\sumit.harit', 'Host'], admin: ['AD', 'CORP\\admin.user', 'Admin'] }[role];

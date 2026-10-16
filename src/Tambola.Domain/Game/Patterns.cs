@@ -52,6 +52,27 @@ public sealed class EarlyFivePattern : IWinPattern
     public bool IsSatisfied(TicketGrid ticket, ISet<int> called) => ticket.Numbers().Count(called.Contains) >= 5;
 }
 
+public sealed class ShapePattern : IWinPattern
+{
+    private readonly (int Row, int Column)[] _cells;
+
+    public ShapePattern(PrizePattern pattern, string displayName, params (int Row, int Column)[] cells)
+    {
+        Pattern = pattern;
+        DisplayName = displayName;
+        _cells = cells;
+    }
+
+    public PrizePattern Pattern { get; }
+    public string DisplayName { get; }
+
+    public bool IsSatisfied(TicketGrid ticket, ISet<int> called)
+    {
+        var required = _cells.Select(cell => ticket.Cells[cell.Row, cell.Column]).Where(number => number != 0).ToArray();
+        return required.Length > 0 && required.All(called.Contains);
+    }
+}
+
 public static class PatternCatalog
 {
     private static readonly Dictionary<PrizePattern, IWinPattern> Map = new IWinPattern[]
@@ -62,6 +83,18 @@ public static class PatternCatalog
         new RowPattern(PrizePattern.ThirdRow, 2, "3rd Row"),
         new FullHousePattern(),
         new EarlyFivePattern(),
+        new ShapePattern(PrizePattern.Star, "Star",
+            (0, 4), (1, 1), (1, 3), (1, 4), (1, 5), (1, 7),
+            (2, 0), (2, 2), (2, 4), (2, 6), (2, 8)),
+        new ShapePattern(PrizePattern.Pyramid, "Pyramid",
+            (0, 4), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
+            (2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8)),
+        new ShapePattern(PrizePattern.Diamond, "Diamond",
+            (0, 4), (1, 3), (1, 4), (1, 5), (2, 4)),
+        new ShapePattern(PrizePattern.LetterH, "Letter H",
+            (0, 0), (0, 8), (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (2, 0), (2, 8)),
+        new ShapePattern(PrizePattern.LetterX, "Letter X",
+            (0, 0), (0, 8), (1, 3), (1, 4), (1, 5), (2, 0), (2, 8)),
     }.ToDictionary(p => p.Pattern);
 
     public static IWinPattern Get(PrizePattern p) => Map[p];

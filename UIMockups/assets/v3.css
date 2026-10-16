@@ -1,0 +1,108 @@
+/* Shared styles for the three player-screen designs. Tickets: max 3 per row at any width; ticket size scales with its own width (container query units). */
+body.v3 main{max-width:none;margin:0;padding:10px 12px 90px}
+.v3 .tickets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(8px,1vw,18px)}
+@media(max-width:900px){.v3 .tickets{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.v3 .tickets{grid-template-columns:1fr}}
+.t3{container-type:inline-size;border:1px solid var(--brand);border-radius:10px;padding:8px;background:var(--surface);transition:box-shadow .2s}
+.t3.won{border:2px solid var(--ok)}
+.t3 .thead{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;font-size:clamp(11px,3.2cqw,15px);color:var(--muted)}
+.t3 .thead b{color:var(--text)}
+.t3 .wons{margin-bottom:4px;display:flex;gap:4px;flex-wrap:wrap}
+.t3 .tgrid{display:grid;grid-template-columns:repeat(9,1fr);gap:clamp(2px,.9cqw,6px)}
+.t3 .tgrid div{aspect-ratio:1/.82;font-size:clamp(11px,4.6cqw,30px);border-radius:clamp(3px,1.1cqw,9px);display:grid;place-items:center;cursor:pointer}
+.t3 .tgrid div.blank{cursor:default}
+.tgrid div.hl{outline:3px solid var(--warn);outline-offset:-2px}
+.tgrid div.new{animation:pop .5s}
+.tb{background:var(--ok-t);color:var(--ok);border-radius:99px;padding:0 7px;font-weight:700;font-size:11px}
+.togo{color:var(--warn);font-weight:600}.rdy{color:var(--ok);font-weight:700}
+/* number call bar */
+.ball{display:grid;place-items:center;border-radius:50%;font-weight:800;color:#fff;background:radial-gradient(circle at 30% 30%,#5cb0ff,var(--brand) 60%,#084a85);box-shadow:0 6px 18px rgba(15,108,189,.45)}
+.ball.pop{animation:pop .5s}
+.numbar{display:flex;align-items:center;gap:14px;padding:10px 14px;margin-bottom:10px}
+.numbar .ball{width:clamp(70px,8vw,120px);height:clamp(70px,8vw,120px);font-size:clamp(32px,4.2vw,58px);flex:none}
+.numbar .mid{flex:1;min-width:0}
+.numbar .said{font-weight:600}
+.numbar .recent{justify-content:flex-start;flex-wrap:wrap}
+.numbar .recent span{cursor:pointer}
+.numbar .cntbox{text-align:right;color:var(--muted);font-size:13px}.numbar .cntbox b{display:block;font-size:26px;color:var(--text)}
+/* prize rows (right panel) */
+.pr{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.pr:last-child{border-bottom:0}
+.pr .nm{font-weight:600;font-size:14px}.pr .nm small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.pr .btn{padding:5px 12px;font-size:13px}
+.pr.ready .btn{animation:glow 1.2s infinite}
+.pr.off .btn{opacity:.5}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(16,124,16,.6)}50%{box-shadow:0 0 0 7px rgba(16,124,16,0)}}
+.mine{background:var(--ok-t);color:var(--ok);border-radius:99px;padding:0 6px;font-size:11px;font-weight:700}
+.cx .board div{cursor:pointer}.cx .board div.sel,.board div.sel{outline:3px solid var(--warn);outline-offset:1px}
+.fab{position:fixed;right:14px;bottom:14px;z-index:30;display:none;box-shadow:var(--shadow)}
+.fab .n{background:var(--ok);color:#fff;border-radius:99px;padding:0 7px;font-size:12px}
+@media(max-width:900px){.fab{display:inline-flex}}
+.v3head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.v3head h1{font-size:20px}.v3head .sub{margin:0;font-size:13px}
+.demo{margin-bottom:10px}
+
+/* ===== Design A — Classic console: number bar above tickets, accordion right panel ===== */
+.gA{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px;align-items:start}
+.gA .side{display:grid;gap:10px;align-content:start}
+@media(max-width:900px){.gA{grid-template-columns:1fr}.dA .numbar{position:sticky;top:0;z-index:6}}
+
+/* ===== Design B — Arena: hero number with call timer, prize cards rail, bottom-sheet rail on mobile ===== */
+.hero{display:flex;align-items:center;gap:clamp(12px,2vw,28px);padding:14px clamp(12px,2vw,28px);border-radius:16px;margin-bottom:12px;color:#fff;
+  background:linear-gradient(120deg,#0b3a6b,#0f6cbd 55%,#6a3fd6);box-shadow:var(--shadow)}
+.hero .ringwrap{position:relative;flex:none;width:clamp(96px,12vw,170px);height:clamp(96px,12vw,170px)}
+.hero .ringwrap svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.hero .ringwrap circle{fill:none;stroke-width:6}
+.hero .ringwrap .bg{stroke:rgba(255,255,255,.25)}
+.hero .ringwrap .fg{stroke:#ffd166;stroke-linecap:round;stroke-dasharray:289;stroke-dashoffset:289}
+.hero .ringwrap .fg.run{animation:ring 3s linear forwards}
+@keyframes ring{from{stroke-dashoffset:289}to{stroke-dashoffset:0}}
+.hero .ball{position:absolute;inset:11%;font-size:clamp(34px,5vw,70px);background:radial-gradient(circle at 30% 30%,#fff,#cfe6ff 60%,#8fbfff);color:#0b3a6b}
+.hero .mid{flex:1;min-width:0}
+.hero .said{font-size:clamp(15px,1.8vw,22px);font-weight:700}
+.hero .recent{justify-content:flex-start;flex-wrap:wrap}.hero .recent span{background:rgba(255,255,255,.18);color:#fff;cursor:pointer}
+.hero .cntbox{text-align:right;font-size:13px;opacity:.9}.hero .cntbox b{display:block;font-size:clamp(22px,3vw,40px)}
+.gB{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;align-items:start}
+.gB .rail{display:grid;gap:10px;align-content:start}
+.pcard{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface2)}
+.pcard.ready{border-color:var(--ok);background:var(--ok-t)}
+.pcard.off{opacity:.6}
+.pcard .meter{height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:5px}.pcard .meter i{display:block;height:100%;background:var(--ok)}
+.pcard .nm{font-weight:700}.pcard .nm small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.t3{cursor:zoom-in}
+@media(max-width:900px){
+  .gB{grid-template-columns:1fr}
+  .hero{position:sticky;top:0;z-index:6;padding:8px 10px;border-radius:0 0 14px 14px;margin:0 -12px 10px}
+  .hero .cntbox{display:none}
+  .gB .rail{position:fixed;left:0;right:0;bottom:0;z-index:40;max-height:75vh;overflow:auto;background:var(--bg);border-radius:18px 18px 0 0;padding:12px;box-shadow:0 -8px 30px rgba(0,0,0,.4);transform:translateY(105%);transition:transform .25s}
+  .gB .rail.open{transform:none}
+}
+.zoomT{max-width:min(92vw,720px);width:100%}
+
+/* ===== Design C — Dock & tabs: slim number strip, tabbed side panel (tabs on desktop, bottom dock on mobile) ===== */
+.strip{display:flex;align-items:center;gap:12px;padding:6px 12px;margin-bottom:10px;border-radius:99px}
+.strip .ball{width:clamp(48px,5vw,70px);height:clamp(48px,5vw,70px);font-size:clamp(22px,2.6vw,34px);flex:none}
+.strip .recent{justify-content:flex-start;margin:0;flex-wrap:nowrap;overflow:hidden}.strip .recent span{cursor:pointer;flex:none}
+.strip .said{font-weight:600;white-space:nowrap}
+.strip .cntbox{margin-left:auto;color:var(--muted);font-size:13px;white-space:nowrap}
+.gC{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:12px;align-items:start}
+.panelC{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--border)}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;padding:10px 4px;cursor:pointer;border-bottom:3px solid transparent;position:relative}
+.tabs button.on{color:var(--brand);border-bottom-color:var(--brand)}
+.tabs .dot2{position:absolute;top:6px;right:8px;background:var(--ok);color:#fff;border-radius:99px;font-size:10px;padding:0 5px}
+.tabpane{display:none;padding:10px 12px;max-height:70vh;overflow:auto}.tabpane.on{display:block}
+.dock{display:none}
+@media(max-width:900px){
+  .gC{grid-template-columns:1fr}
+  .strip{position:sticky;top:0;z-index:6;border-radius:0 0 16px 16px;margin:0 -12px 10px}
+  .strip .cntbox,.strip .said{display:none}
+  .panelC{position:fixed;left:0;right:0;bottom:56px;z-index:40;border-radius:18px 18px 0 0;transform:translateY(120%);transition:transform .25s;box-shadow:0 -8px 30px rgba(0,0,0,.4)}
+  .panelC.open{transform:none}
+  .panelC .tabs{display:none}
+  .tabpane{max-height:60vh}
+  .dock{display:flex;position:fixed;left:0;right:0;bottom:0;height:56px;z-index:45;background:var(--surface);border-top:1px solid var(--border)}
+  .dock button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12px;font-weight:600;position:relative}
+  .dock button.on{color:var(--brand)}
+  .dock .dot2{position:absolute;top:4px;left:55%;background:var(--ok);color:#fff;border-radius:99px;font-size:10px;padding:0 5px}
+}

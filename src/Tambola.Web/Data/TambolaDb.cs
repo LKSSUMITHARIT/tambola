@@ -16,6 +16,7 @@ public class TambolaDb : DbContext
     public DbSet<PrizeWinner> PrizeWinners => Set<PrizeWinner>();
     public DbSet<Claim> Claims => Set<Claim>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<AppSetting> AppSettings => Set<AppSetting>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -54,9 +55,10 @@ public class TambolaDb : DbContext
         b.Entity<PrizeWinner>(e =>
         {
             e.HasIndex(x => new { x.PrizeId, x.Slot }).IsUnique();
-            e.HasIndex(x => new { x.PrizeId, x.EmployeeId }).IsUnique();
+            e.HasIndex(x => new { x.PrizeId, x.TicketId }).IsUnique();   // one win per ticket per prize (a player may win a prize once with each ticket)
             e.HasOne(x => x.Employee).WithMany().HasForeignKey(x => x.EmployeeId);
         });
+        b.Entity<AppSetting>().HasKey(x => x.Key);
         b.Entity<Claim>().HasIndex(x => new { x.PrizeId, x.EmployeeId });
     }
 }

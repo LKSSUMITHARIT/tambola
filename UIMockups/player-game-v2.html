@@ -1,0 +1,88 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Play (new layout)</title><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/v2.css"></head>
+<body data-page="player-game-v2.html" data-role="player">
+<main class="wide">
+<div class="row spread v2head"><div><h1>Friday Fun Tambola <span class="badge ok">Live</span></h1>
+ <p class="sub">Host: Amit · Calling: Auto (every 6s) · Cutting: Auto · <span id="cnt">0</span> of 90 called</p></div>
+ <div class="code" style="font-size:20px;padding:6px 12px">ZBNAQL</div></div>
+
+<div class="demo"><b>DEMO CONTROLS</b> (not part of the real UI) —
+ <button class="btn sm" id="next">Call next</button>
+ <button class="btn sm" id="ten">Call 10</button>
+ <button class="btn sm" data-complete="0">Complete ticket #1</button>
+ <button class="btn sm" data-complete="1">Complete ticket #2</button>
+ <button class="btn sm" data-complete="2">Complete ticket #3</button>
+ <button class="btn sm" id="rival">Rival wins a Full House slot</button>
+ <button class="btn sm" id="reset">Reset</button></div>
+
+<div class="game2">
+ <div class="left">
+  <div class="prow" id="prizes"></div>
+  <div class="row spread" style="margin-bottom:6px"><h3 style="margin:0">Your tickets <span class="badge" id="tcount"></span></h3>
+   <button class="btn primary sm" id="buy" type="button">➕ Get a ticket</button></div>
+  <div class="tickets" id="tix"></div>
+  <p class="hint"><span style="color:var(--brand)">■</span> cut (auto) &nbsp; <span class="tb">🏆 Full House</span> = this ticket already won that prize. With 3 tickets you can win the same prize up to 3 times, once per ticket.</p>
+ </div>
+ <div class="side">
+  <div class="card curr" id="curr"><div class="hint">CURRENT NUMBER</div>
+   <div class="ball" id="ball">—</div><div class="said" id="said">Waiting for first call…</div><div class="recent" id="recent"></div></div>
+  <div class="cx" data-id="board"><div class="cx-head">Called numbers</div><div class="cx-body"><div class="board" id="board"></div></div></div>
+  <div class="cx" data-id="feed"><div class="cx-head">Live feed</div><div class="cx-body"><div class="feed" id="feed"><div>Game started. Good luck! 🍀</div></div></div></div>
+  <div class="cx" data-id="players"><div class="cx-head">Players <span class="badge ok">12</span></div><div class="cx-body">
+   <ul class="list"><li><span class="dot"></span>Anil Kumar (you)</li><li><span class="dot"></span>Priya S</li><li><span class="dot"></span>Rahul M</li><li><span class="dot"></span>Neha G</li><li class="hint">+ 8 more…</li></ul></div></div>
+ </div>
+</div>
+</main>
+<div class="overlay" id="win"><div class="modal"><div class="big">🎉</div><h2>Congratulations!</h2><p id="winTxt"></p><button class="btn primary" type="button" onclick="T.modal('win',false)">Awesome!</button></div></div>
+<script src="assets/app.js"></script><script src="assets/v2.js"></script>
+<script>
+var MAX_TICKETS = 6, S;
+function reset() {
+  S = { called: [], tickets: [V2.ticket(), V2.ticket(), V2.ticket()],
+    prizes: [['EarlyFive', 2], ['FourCorners', 1], ['FirstRow', 1], ['SecondRow', 1], ['ThirdRow', 1], ['FullHouse', 5]].map(function (p) { return { k: p[0], n: p[1], others: 0, mine: [] }; }) };
+  $('feed').innerHTML = '<div>Game started. Good luck! 🍀</div>'; render();
+}
+function $(id) { return document.getElementById(id); }
+function feed(t) { var d = document.createElement('div'); d.innerHTML = t; $('feed').prepend(d); }
+function render() {
+  var last = S.called[S.called.length - 1];
+  $('cnt').textContent = S.called.length; T.board($('board'), S.called, last);
+  $('ball').textContent = last || '—'; $('said').textContent = last ? 'Number ' + last + ' called' : 'Waiting for first call…';
+  $('recent').innerHTML = S.called.slice(-6, -1).reverse().map(function (n) { return '<span>' + n + '</span>'; }).join('');
+  $('prizes').innerHTML = '<span class="lbl">Prizes</span>' + S.prizes.map(function (p, i) {
+    var taken = p.others + p.mine.length, closed = taken >= p.n, all = p.mine.length >= S.tickets.length, cls = 'pz';
+    if (closed || all) cls += ' done';
+    var tip = V2.P[p.k].name + ' — ' + taken + ' of ' + p.n + ' winners · you won ' + p.mine.length + ' of ' + S.tickets.length + ' possible (one per ticket)';
+    return '<button class="' + cls + '" data-i="' + i + '" title="' + tip + '" ' + (closed || all ? 'disabled' : '') + '>' + V2.pattern(V2.P[p.k].cells) + V2.P[p.k].name +
+      ' <small>' + taken + '/' + p.n + '</small>' + (p.mine.length ? '<span class="mine">you ' + p.mine.length + '/' + S.tickets.length + '</span>' : '') + (closed ? ' 🔒' : '') + '</button>';
+  }).join('');
+  $('tix').innerHTML = S.tickets.map(function (g, ti) {
+    var won = S.prizes.filter(function (p) { return p.mine.indexOf(ti) > -1; });
+    return '<div class="t2 ' + (won.length ? 'won' : '') + '"><div class="thead"><b>Ticket #' + (ti + 1) + '</b><span>' +
+      won.map(function (p) { return '<span class="tb">🏆 ' + V2.P[p.k].name + '</span>'; }).join(' ') + '</span></div><div class="tgrid">' +
+      g.map(function (v) { return v ? '<div class="num ' + (S.called.indexOf(v) > -1 ? 'cut' : '') + '">' + v + '</div>' : '<div class="blank"></div>'; }).join('') + '</div></div>';
+  }).join('');
+  $('tcount').textContent = S.tickets.length + '/' + MAX_TICKETS; $('buy').style.display = S.tickets.length < MAX_TICKETS ? '' : 'none';
+}
+function call(n) { if (S.called.length >= 90) return; var x; do { x = 1 + Math.floor(Math.random() * 90); } while (S.called.indexOf(x) > -1); S.called.push(x); feed('Number <b>' + x + '</b> called'); }
+$('next').onclick = function () { call(); render(); };
+$('ten').onclick = function () { for (var i = 0; i < 10; i++) call(); render(); };
+document.querySelectorAll('[data-complete]').forEach(function (b) {
+  b.onclick = function () { var g = S.tickets[+b.dataset.complete]; if (!g) return; g.filter(Boolean).forEach(function (v) { if (S.called.indexOf(v) < 0) S.called.push(v); }); T.toast('All numbers of ticket #' + (+b.dataset.complete + 1) + ' called'); render(); };
+});
+$('rival').onclick = function () { var p = S.prizes[5]; if (p.others + p.mine.length < p.n) { p.others++; feed('🏆 Priya S won Full House (#' + (p.others + p.mine.length) + ' of ' + p.n + ')'); render(); } };
+$('reset').onclick = reset;
+$('buy').onclick = function () { S.tickets.push(V2.ticket()); render(); };
+$('prizes').onclick = function (e) {
+  var b = e.target.closest('.pz'); if (!b || b.disabled) return;
+  var p = S.prizes[+b.dataset.i], idx = -1;
+  S.tickets.forEach(function (g, ti) { if (idx < 0 && p.mine.indexOf(ti) < 0 && V2.complete(g, p.k, S.called)) idx = ti; });
+  if (idx < 0) { T.toast('Not valid yet: none of your remaining tickets has ' + V2.P[p.k].name + ' complete'); return; }
+  p.mine.push(idx); var slot = p.others + p.mine.length;
+  feed('🏆 You won ' + V2.P[p.k].name + ' with ticket #' + (idx + 1) + ' (#' + slot + ' of ' + p.n + ')');
+  $('winTxt').innerHTML = 'You won <b>' + V2.P[p.k].name + '</b> with <b>ticket #' + (idx + 1) + '</b> — winner <b>' + slot + ' of ' + p.n + '</b>!' +
+    (p.mine.length < S.tickets.length && slot < p.n ? '<br>You can claim it again with another complete ticket.' : '');
+  T.confetti(); T.modal('win', true); render();
+};
+V2.collapsibles(); reset();
+</script></body></html>

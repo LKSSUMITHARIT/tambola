@@ -1,0 +1,64 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Play — Design C (Dock &amp; tabs)</title><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/v2.css"><link rel="stylesheet" href="assets/v3.css"></head>
+<body class="v3 dC" data-page="player-v3c.html" data-role="player">
+<main>
+<div class="v3head"><div><h1>Friday Fun Tambola <span class="badge ok">Live</span> <span class="badge brand">Design C · Dock &amp; tabs</span></h1>
+ <p class="sub">Host: Amit · Auto calling · Cutting: Auto</p></div>
+ <div class="code" style="font-size:18px;padding:5px 12px">ZBNAQL</div></div>
+<div id="demo"></div>
+
+<div class="card strip"><div class="ball" id="ball">—</div>
+ <div class="said" id="said">Waiting for the first call…</div><div class="recent" id="recent"></div>
+ <div class="cntbox"><b id="cnt">0</b> / 90 called</div></div>
+
+<div class="gC">
+ <div class="left">
+  <div class="row spread" style="margin-bottom:6px"><h3 style="margin:0">Your tickets <span class="badge" id="tcount"></span></h3>
+   <span class="hint" style="margin:0">Tap any number to find it on every ticket</span></div>
+  <div class="tickets" id="tix"></div>
+ </div>
+ <div class="panelC" id="panel">
+  <div class="tabs" id="tabs">
+   <button data-tab="prizes" class="on">🏆 Prizes <span class="dot2" data-readycount>0</span></button>
+   <button data-tab="board">Numbers</button>
+   <button data-tab="feed">Feed <span class="dot2" id="newFeed" style="display:none">•</span></button>
+   <button data-tab="players">Players</button>
+  </div>
+  <div class="tabpane on" data-pane="prizes"><div id="prizes"></div></div>
+  <div class="tabpane" data-pane="board"><div class="board" id="board"></div></div>
+  <div class="tabpane" data-pane="feed"><div class="feed" id="feed"></div></div>
+  <div class="tabpane" data-pane="players"><ul class="list"><li><span class="dot"></span>Anil Kumar (you)</li><li><span class="dot"></span>Priya S</li><li><span class="dot"></span>Rahul M</li><li class="hint">+ 9 more…</li></ul></div>
+ </div>
+</div>
+</main>
+<nav class="dock" id="dock">
+ <button data-tab="tickets" class="on">🎟️<br>Tickets</button>
+ <button data-tab="prizes">🏆<br>Prizes <span class="dot2" data-readycount>0</span></button>
+ <button data-tab="board">🔢<br>Numbers</button>
+ <button data-tab="feed">💬<br>Feed</button>
+ <button data-tab="players">👥<br>Players</button>
+</nav>
+<script src="assets/app.js"></script><script src="assets/v2.js"></script><script src="assets/v3.js"></script>
+<script>
+function $(id) { return document.getElementById(id); }
+var cur = 'prizes';
+function openTab(t) {
+  var mobile = innerWidth <= 900;
+  if (t === 'tickets') { $('panel').classList.remove('open'); cur = cur === 'tickets' ? 'prizes' : cur; }
+  else { cur = t; $('panel').classList.toggle('open', mobile); }
+  document.querySelectorAll('.tabpane').forEach(function (p) { p.classList.toggle('on', p.dataset.pane === cur); });
+  document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === cur); });
+  document.querySelectorAll('#dock button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === (t === 'tickets' || !mobile ? 'tickets' : cur)); });
+  if (t === 'feed') $('newFeed').style.display = 'none';
+}
+document.addEventListener('click', function (e) { var b = e.target.closest('#tabs button,#dock button'); if (b) openTab(b.dataset.tab); });
+G.init({
+  prizeFn: function (f) {
+    return '<div class="pr ' + (f.ready > -1 ? 'ready' : '') + (f.off ? ' off' : '') + '" title="' + f.tip + '">' + f.icon +
+      '<div class="nm">' + f.name + '<small>' + f.taken + '/' + f.p.n + ' winners' + (f.p.mine.length ? ' · <span class="mine">you ' + f.p.mine.length + '/' + G.S.tickets.length + '</span>' : '') + '</small></div>' +
+      '<button class="btn sm ' + (f.off ? '' : 'primary') + '" data-claim="' + f.i + '" ' + (f.off ? 'disabled' : '') + '>' + (f.closed ? '🔒 Closed' : f.all ? '✔ All won' : 'Claim') + '</button></div>';
+  },
+  onFeed: function () { if (cur !== 'feed') $('newFeed').style.display = ''; }
+});
+$('prizes').onclick = function (e) { var b = e.target.closest('[data-claim]'); if (b) G.claim(+b.dataset.claim); };
+</script></body></html>

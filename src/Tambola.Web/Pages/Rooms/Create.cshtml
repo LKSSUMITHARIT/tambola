@@ -34,7 +34,7 @@
       {
         <tr>
           <td><input type="hidden" asp-for="Prizes[i].Pattern"><input type="checkbox" asp-for="Prizes[i].Enabled"></td>
-          <td><b>@PatternCatalog.Get(Model.Prizes[i].Pattern).DisplayName</b></td>
+          <td><b>@PatternCatalog.Get(Model.Prizes[i].Pattern).DisplayName</b><span data-pattern-preview="@Model.Prizes[i].Pattern"></span></td>
           <td><input asp-for="Prizes[i].Winners" type="number" min="1" max="100" style="width:80px"></td>
           <td><input asp-for="Prizes[i].Reward" maxlength="80" placeholder="e.g. Gift voucher"></td>
         </tr>

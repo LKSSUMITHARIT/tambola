@@ -17,7 +17,7 @@ public record TicketDto(int id, int serial, int[] grid, int[] marks);
 public record RoomStateDto(string code, string name, string host, int myId, string status, string callMode, string cutMode,
     int interval, int maxTickets, bool isHost, bool locked, int lateJoinMaxCalls, int[] called, List<PrizeDto> prizes,
     List<TicketDto> tickets, List<PlayerDto> players, Dictionary<string, string> mine,
-    int maxWrongClaims = 3, Dictionary<string, int>? wrong = null);
+    int maxWrongClaims = 3, Dictionary<string, int>? wrong = null, Dictionary<string, int[]>? wonTickets = null);
 public record PlayerDto(int id, string name);
 /// <summary>status: won | late | invalid (wrong claim) | rejected. For "invalid": locked = the prize is now locked for this player; left = tries remaining (-1 = unlimited).</summary>
 public record ClaimOutcome(string status, string message, string? prize, int slot, int of, string? reward, bool locked = false, int left = 0);
@@ -354,8 +354,9 @@ public class GameService
             var limit = room.MaxWrongClaims;   // 0 = unlimited
             var earlier = await db.Claims.Where(c => c.PrizeId == prize.Id && c.EmployeeId == empId && c.Result != ClaimResult.Late)
                 .Select(c => c.Result).ToListAsync();
-            if (earlier.Contains(ClaimResult.Valid))
-                return new ClaimOutcome("rejected", "You have already won this prize.", def.DisplayName, 0, 0, null);
+            // one win per ticket: a player holding several tickets may win the same prize once with each of them
+            if (prize.Winners.Any(w => w.TicketId == ticketId))
+                return new ClaimOutcome("rejected", "This ticket has already won this prize. Claim with another ticket.", def.DisplayName, 0, 0, null);
             var wrongSoFar = earlier.Count(r => r == ClaimResult.Bogey);
             if (limit > 0 && wrongSoFar >= limit)
                 return new ClaimOutcome("rejected", $"This prize is locked for you after {limit} wrong claim{(limit == 1 ? "" : "s")}.", def.DisplayName, 0, 0, null, true, 0);
@@ -427,18 +428,21 @@ public class GameService
         var myClaims = await db.Claims.Where(c => c.RoomId == room.Id && c.EmployeeId == empId && c.Result != ClaimResult.Late)
                          .Select(c => new { c.PrizeId, c.Result }).ToListAsync();
         var wrong = new Dictionary<string, int>();
+        // tickets of this player that already won each prize (one win per ticket); "won" = every ticket has won it
+        var wonTickets = room.Prizes.ToDictionary(p => p.Pattern.ToString(),
+            p => p.Winners.Where(w => w.EmployeeId == empId).Select(w => w.TicketId).ToArray());
         foreach (var g in myClaims.GroupBy(c => c.PrizeId))
         {
             var pattern = room.Prizes.First(x => x.Id == g.Key).Pattern.ToString();
             var bogeys = g.Count(c => c.Result == ClaimResult.Bogey);
-            if (g.Any(c => c.Result == ClaimResult.Valid)) mine[pattern] = "won";
+            if (tickets.Count > 0 && wonTickets[pattern].Length >= tickets.Count) mine[pattern] = "won";
             else if (room.MaxWrongClaims > 0 && bogeys >= room.MaxWrongClaims) mine[pattern] = "barred";   // limit reached: locked
             if (bogeys > 0) wrong[pattern] = bogeys;
         }
         return new RoomStateDto(room.Code, room.Name, room.Host!.DisplayName, empId, room.Status.ToString(), room.CallMode.ToString(),
             room.CutMode.ToString(), room.CallIntervalSeconds, room.MaxTicketsPerPlayer, isHost, room.IsLocked, _opt.LateJoinMaxCalls,
             called, await BuildPrizes(db, room.Id), tickets.Select(ToDto).ToList(), await PlayerList(db, room.Id), mine,
-            room.MaxWrongClaims, wrong);
+            room.MaxWrongClaims, wrong, wonTickets.Where(kv => kv.Value.Length > 0).ToDictionary(kv => kv.Key, kv => kv.Value));
     }
 
     private static TicketDto ToDto(Ticket t) =>

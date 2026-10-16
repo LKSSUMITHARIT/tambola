@@ -43,6 +43,11 @@ public class CreateModel : PageModel
             new() { Pattern = PrizePattern.ThirdRow, Enabled = true, Winners = 5 },
             new() { Pattern = PrizePattern.FullHouse, Enabled = true, Winners = 1 },
             new() { Pattern = PrizePattern.EarlyFive, Enabled = false, Winners = 1 },
+            new() { Pattern = PrizePattern.Star, Enabled = false, Winners = 1 },
+            new() { Pattern = PrizePattern.Pyramid, Enabled = false, Winners = 1 },
+            new() { Pattern = PrizePattern.Diamond, Enabled = false, Winners = 1 },
+            new() { Pattern = PrizePattern.LetterH, Enabled = false, Winners = 1 },
+            new() { Pattern = PrizePattern.LetterX, Enabled = false, Winners = 1 },
         };
     }
 

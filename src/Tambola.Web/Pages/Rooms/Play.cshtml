@@ -1,30 +1,50 @@
 @page "/Rooms/Play/{code}"
 @model Tambola.Web.Pages.Rooms.PlayModel
-@{ ViewData["Title"] = Model.RoomName; }
+@{ ViewData["Title"] = Model.RoomName; ViewData["Wide"] = true; }
 <div id="app" data-code="@Model.Code" data-role="player">
-  <div class="row spread">
+  <div class="v3head">
     <div><h1>@Model.RoomName <span class="badge" id="statusBadge">…</span></h1>
-      <p class="sub">Host: <span id="hostName"></span> · Calling: <b id="callLbl"></b> · Cutting: <b id="cutLbl"></b> · <span id="cnt">0</span> of 90 called</p></div>
-    <div class="row"><div class="code" id="roomCode">@Model.Code</div></div>
+      <p class="sub">Host: <span id="hostName"></span> · Calling: <b id="callLbl"></b> · Cutting: <b id="cutLbl"></b></p></div>
+    <div class="code" id="roomCode">@Model.Code</div>
   </div>
   <div class="alert bad" id="conn" style="display:none">Reconnecting…</div>
   <div class="alert warn" id="banner" style="display:none"></div>
 
-  <div class="cols">
-    <div class="grid">
-      <div class="card current" id="currentCard"><div class="hint">CURRENT NUMBER</div>
-        <div class="ball" id="ball">—</div><div id="said" class="hint">Waiting for the first call…</div><div class="recent" id="recent"></div></div>
-      <div class="card"><div class="row spread"><h2>Your tickets</h2><button class="btn primary sm" id="buy" type="button">➕ Get a ticket</button></div>
-        <div id="tix"></div>
-        <p class="hint"><span style="color:var(--warn)">■</span> called (tap to cut in manual mode) &nbsp; <span style="color:var(--brand)">■</span> cut</p></div>
+  <div class="card strip" id="currentCard">
+    <div class="ball" id="ball">—</div>
+    <div class="said" id="said">Waiting for the first call…</div>
+    <div class="recent" id="recent"></div>
+    <div class="cntbox"><b id="cnt">0</b> / 90 called</div>
+  </div>
+
+  <div class="gC">
+    <div class="left">
+      <div class="row spread" style="margin-bottom:6px"><h3 style="margin:0">Your tickets <span class="badge" id="tcount"></span></h3>
+        <button class="btn primary sm" id="buy" type="button">➕ Get a ticket</button></div>
+      <div class="tickets" id="tix"></div>
+      <p class="hint"><span style="color:var(--warn)">■</span> called (tap to cut in manual mode) &nbsp; <span style="color:var(--brand)">■</span> cut &nbsp; · A prize can be won once with each of your tickets. Tap a number on the board to find it on your tickets.</p>
     </div>
-    <div class="grid" style="align-self:start">
-      <div class="card"><h2>Prizes &amp; claims</h2><div id="prizes"></div></div>
-      <div class="card"><h2>Called numbers</h2><div class="board" id="board"></div></div>
-      <div class="card"><h2>Live feed</h2><div class="feed" id="feed"></div></div>
-      <div class="card"><h2>Players <span class="badge ok" id="pcount">0</span></h2><ul class="list" id="players"></ul></div>
+    <div class="panelC" id="panel">
+      <div class="tabs" id="tabs">
+        <button type="button" data-tab="prizes" class="on">🏆 Prizes <span class="dot2 readycount" style="display:none">0</span></button>
+        <button type="button" data-tab="board">Numbers</button>
+        <button type="button" data-tab="feed">Feed <span class="dot2 newfeed" style="display:none">•</span></button>
+        <button type="button" data-tab="players">Players</button>
+      </div>
+      <div class="tabpane on" data-pane="prizes"><div id="prizes"></div></div>
+      <div class="tabpane" data-pane="board"><div class="board" id="board"></div></div>
+      <div class="tabpane" data-pane="feed"><div class="feed" id="feed"></div></div>
+      <div class="tabpane" data-pane="players"><p class="hint" style="margin-top:0"><span id="pcount">0</span> players</p><ul class="list" id="players"></ul></div>
     </div>
   </div>
+
+  <nav class="dock" id="dock">
+    <button type="button" data-tab="home" class="on">🎟️<br>Tickets</button>
+    <button type="button" data-tab="prizes">🏆<br>Prizes <span class="dot2 readycount" style="display:none">0</span></button>
+    <button type="button" data-tab="board">🔢<br>Numbers</button>
+    <button type="button" data-tab="feed">💬<br>Feed <span class="dot2 newfeed" style="display:none">•</span></button>
+    <button type="button" data-tab="players">👥<br>Players</button>
+  </nav>
 
   <div class="overlay" id="win"><div class="modal"><div class="big">🎉</div><h2>Congratulations!</h2><p id="winTxt"></p><button class="btn primary" type="button" data-close="win">Awesome!</button></div></div>
   <div class="overlay" id="late"><div class="modal"><div class="big">⚡</div><h2>So close!</h2><p id="lateTxt"></p><button class="btn primary" type="button" data-close="late">Got it — I'll be quicker</button></div></div>

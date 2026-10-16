@@ -47,5 +47,5 @@ dotnet test            # 25 tests: ticket validity (10 000 tickets), patterns, r
 ## Key rules (summary)
 * One Employee Code ↔ one email ↔ one Windows account (unique indexes + validation).
 * Admins come from `appsettings` (`Tambola:AdminUsers`); Admins appoint any number of Hosts.
-* Prizes are winning cases (Four Corners, 1st/2nd/3rd Row, Full House, optional Early Five) with a **Host-set winner count each**; first N valid claims win, then the prize closes.
+* Prizes are winning cases (Four Corners, 1st/2nd/3rd Row, Full House, Early Five, and optional Star, Pyramid, Diamond, Letter H, Letter X) with a **Host-set winner count each**; first N valid claims win, then the prize closes.
 * Number calling and number cutting are each **Manual/Auto**, fixed by the Host per room. Claiming is always manual and validated on the server against the numbers actually called.

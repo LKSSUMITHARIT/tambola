@@ -1,6 +1,9 @@
 <!doctype html>
-@{ var appOpt = Context.RequestServices.GetRequiredService<Microsoft.Extensions.Options.IOptions<Tambola.Web.Services.AppOptions>>().Value; }
-<html lang="en" data-default-theme="@appOpt.DefaultTheme.ToLowerInvariant()" data-default-sound="@(appOpt.DefaultSoundOn ? "on" : "off")">
+@{
+  var appOpt = Context.RequestServices.GetRequiredService<Microsoft.Extensions.Options.IOptions<Tambola.Web.Services.AppOptions>>().Value;
+  var snd = Context.RequestServices.GetRequiredService<Tambola.Web.Services.SettingsService>().Sound;   // Admin-managed, same for every user
+}
+<html lang="en" data-default-theme="@appOpt.DefaultTheme.ToLowerInvariant()" data-default-sound="@(snd.Enabled ? "on" : "off")" data-caller="@snd.CallerStyle" data-fallback="@snd.Fallback" data-volume="@snd.Volume" data-allow-mute="@(snd.AllowMute ? "yes" : "no")">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -29,7 +32,7 @@
       <a href="/" class="@(path == "/" ? "on" : "")">Home</a>
       @if (User.IsInRole("Host")) { <a href="/Rooms/Create" class="@On("/Rooms/Create")">Create Room</a> }
       <a href="/History" class="@On("/History")">My Games</a>
-      @if (User.IsInRole("Admin")) { <a href="/Admin" class="@(path == "/Admin" ? "on" : "")">Hosts &amp; Employees</a><a href="/Admin/Reports" class="@On("/Admin/Reports")">Reports</a> }
+      @if (User.IsInRole("Admin")) { <a href="/Admin" class="@(path == "/Admin" ? "on" : "")">Hosts &amp; Employees</a><a href="/Admin/Reports" class="@On("/Admin/Reports")">Reports</a><a href="/Admin/Sound" class="@On("/Admin/Sound")">Sound</a> }
       <a href="/Help" class="@On("/Help")">Help</a>
     </nav>
   }
@@ -44,14 +47,15 @@
       @if (appOpt.IsManual)
       {
         <a class="btn sm" href="/Account/ChangePassword">Password</a>
-        <form method="post" action="/Account/ChangePassword?handler=Logout" style="display:inline"><button class="btn sm" type="submit">Sign out</button></form>
+        @* asp-page (not a plain action=) so the form tag helper adds the anti-forgery token the POST requires *@
+        <form method="post" asp-page="/Account/ChangePassword" asp-page-handler="Logout" style="display:inline"><button class="btn sm" type="submit">Sign out</button></form>
       }
     }
-    <button class="btn sm" id="soundBtn" title="Sound on/off" type="button">🔊</button>
+    @if (snd.AllowMute) { <button class="btn sm" id="soundBtn" title="Sound on/off" type="button">🔊</button> }
     <button class="btn sm" id="themeBtn" title="Toggle theme" type="button">🌓</button>
   </div>
 </header>
-<main class="@(ViewData["Narrow"] is true ? "narrow" : "")">
+<main class="@(ViewData["Narrow"] is true ? "narrow" : "") @(ViewData["Wide"] is true ? "wide" : "")">
   @RenderBody()
 </main>
 <script src="~/lib/jquery.min.js"></script>

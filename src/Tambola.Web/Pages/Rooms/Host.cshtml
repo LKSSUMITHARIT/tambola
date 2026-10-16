@@ -1,8 +1,8 @@
 @page "/Rooms/Host/{code}"
 @model Tambola.Web.Pages.Rooms.HostModel
-@{ ViewData["Title"] = "Host console"; }
+@{ ViewData["Title"] = "Host console"; ViewData["Wide"] = true; }
 <div id="app" data-code="@Model.Code" data-role="host">
-  <div class="row spread">
+  <div class="v3head">
     <div><h1>@Model.RoomName <span class="badge" id="statusBadge">…</span></h1>
       <p class="sub">Calling: <b id="callLbl"></b> · Cutting: <b id="cutLbl"></b> · <span id="pcount2">0</span> players · Share the code:</p></div>
     <div class="code" id="roomCode">@Model.Code</div>
@@ -10,26 +10,44 @@
   <div class="alert bad" id="conn" style="display:none">Reconnecting…</div>
   <div class="alert warn" id="banner" style="display:none"></div>
 
-  <div class="cols">
-    <div class="grid">
-      <div class="card current"><div class="hint">CURRENT NUMBER · <span id="cnt">0</span> / 90 called</div>
-        <div class="ball" id="ball">—</div><div class="recent" id="recent"></div>
-        <div class="row" style="justify-content:center;margin-top:14px">
-          <button class="btn ok" id="start" type="button">▶ Start game</button>
-          <button class="btn primary" id="next" type="button" disabled>🎱 Call next</button>
-          <div class="pill-toggle" id="cm"><button type="button" data-v="Manual">Manual</button><button type="button" data-v="Auto">Auto</button></div>
-          <select id="interval" title="Auto interval (seconds)" style="width:auto"><option>3</option><option>4</option><option>5</option><option selected>6</option><option>8</option><option>10</option><option>15</option></select>
-          <button class="btn" id="pause" type="button" disabled>⏸ Pause</button>
-          <button class="btn danger" id="end" type="button">■ End game</button></div>
-        <p class="hint" style="margin-top:10px">Numbers are announced aloud on this device. Use 🔊 in the header to mute.</p></div>
-      <div class="card"><h2>Called numbers</h2><div class="board" id="board"></div></div>
+  <div class="card strip">
+    <div class="ball" id="ball">—</div>
+    <div class="said">Current number</div>
+    <div class="recent" id="recent"></div>
+    <div class="cntbox"><b id="cnt">0</b> / 90 called</div>
+  </div>
+
+  <div class="gC">
+    <div class="left">
+      <div class="card ctl">
+        <button class="btn ok sm" id="start" type="button">▶ Start game</button>
+        <button class="btn primary sm" id="next" type="button" disabled>🎱 Call next</button>
+        <div class="pill-toggle" id="cm"><button type="button" data-v="Manual">Manual</button><button type="button" data-v="Auto">Auto</button></div>
+        <select id="interval" title="Auto interval (seconds)"><option>3</option><option>4</option><option>5</option><option selected>6</option><option>8</option><option>10</option><option>15</option></select>
+        <button class="btn sm" id="pause" type="button" disabled>⏸ Pause</button>
+        <button class="btn danger sm" id="end" type="button">■ End game</button>
+        <span class="hint" style="margin:0 0 0 auto">Numbers are announced on this device. Sound is set by the Admin; 🔊 in the header mutes it here.</span>
+      </div>
+      <h3 style="margin:0 0 6px">Board</h3>
+      <div class="bigboard" id="board"></div>
     </div>
-    <div class="grid" style="align-self:start">
-      <div class="card"><h2>Prizes</h2><div id="prizes"></div></div>
-      <div class="card"><h2>Claims &amp; feed</h2><div class="feed" id="feed"></div></div>
-      <div class="card"><h2>Players <span class="badge ok" id="pcount">0</span></h2><ul class="list" id="players"></ul>
-        <button class="btn sm" id="lock" type="button">🔒 Lock room</button></div>
+    <div class="panelC" id="panel">
+      <div class="tabs" id="tabs">
+        <button type="button" data-tab="prizes" class="on">🏆 Prizes</button>
+        <button type="button" data-tab="feed">Claims &amp; feed <span class="dot2 newfeed" style="display:none">•</span></button>
+        <button type="button" data-tab="players">Players <span class="badge ok" id="pcount">0</span></button>
+      </div>
+      <div class="tabpane on" data-pane="prizes"><div id="prizes"></div></div>
+      <div class="tabpane" data-pane="feed"><div class="feed" id="feed"></div></div>
+      <div class="tabpane" data-pane="players"><ul class="list" id="players"></ul><button class="btn sm" id="lock" type="button" style="margin-top:8px">🔒 Lock room</button></div>
     </div>
   </div>
+
+  <nav class="dock" id="dock">
+    <button type="button" data-tab="home" class="on">🔢<br>Board</button>
+    <button type="button" data-tab="prizes">🏆<br>Prizes</button>
+    <button type="button" data-tab="feed">💬<br>Claims <span class="dot2 newfeed" style="display:none">•</span></button>
+    <button type="button" data-tab="players">👥<br>Players</button>
+  </nav>
 </div>
 @section Scripts { <script src="~/js/host.js" asp-append-version="true"></script> }

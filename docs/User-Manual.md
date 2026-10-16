@@ -11,7 +11,7 @@ The same content is available inside the app under **Help**.
    * One Employee Code can be linked to **one** email, and one email to one code. If you see “already registered”, contact the Admin.
 3. You land on **Home**: join with a room code, pick a game under **Live games**, look back at **Past games**, see your stats.
 
-The app opens in **dark theme** with **sound on** by default. Use 🌓 (theme) and 🔊 (sound) in the top right; your choice is remembered in your browser.
+The app opens in **dark theme** with **sound on** by default. Use 🌓 (theme) and 🔊 (mute on this device) in the top right; your choices are remembered in your browser. The **caller voice and volume are set once by the Admin** (**Sound** page) and are the same for everyone: **Funny Hindi** plays a recorded funny clip for each number (all 90 clips are downloaded to your device when you open a room, so calls play instantly and keep working offline). If a clip is missing it falls back to the Admin's chosen fallback voice. To replace a clip with your own recording, overwrite `src/Tambola.Web/wwwroot/audio/hi/{number}.mp3` (mono mp3, 2–5 s); `python tools/gen_voice.py` regenerates missing placeholder clips from `calls.json` there.
 
 ## 2. Playing (Player)
 | Step | What to do |
@@ -27,6 +27,16 @@ The app opens in **dark theme** with **sound on** by default. Use 🌓 (theme) a
 * **1st / 2nd / 3rd Row** – all five numbers of that row.
 * **Full House** – all 15 numbers.
 * **Early Five** (if enabled) – any five numbers.
+* **Star, Pyramid, Diamond, Letter H, Letter X** (if enabled) – complete the numbered cells marked `X` by the shape on the 3×9 ticket. Blank cells do not need to be marked.
+
+```text
+Star       Pyramid    Diamond    Letter H   Letter X
+....X....  ....X....  ....X....  X.......X  X.......X
+.X.X.X.X.  ..XXXXX..  ...XXX...  XXXXXXXXX  ...XXX...
+X.X.X.X.X  XXXXXXXXX  ....X....  X.......X  X.......X
+```
+
+For a shape prize, every numbered ticket cell under an `X` must have been called. Any blank cells under an `X` are ignored; a ticket with no numbers under the shape cannot claim it.
 
 Each prize has a limited number of winners (e.g. 1st Row: 5). The **first valid claims win**; when the quota is full the prize closes.
 
@@ -52,7 +62,7 @@ Hosts are appointed by an Admin; you will see **Create Room** in the menu.
    * *Prizes:* tick the cases you want, set the **number of winners** for each (e.g. Full House 1, Four Corners 4, each Row 5) and an optional reward text.
 2. **Share the room code** shown on the console. Players appear live in the *Players* list; you can **Lock room** or **Remove** a player.
 3. **Start game** (needs at least one ticket taken).
-4. **Call numbers:** *Call next* in Manual mode. Switch Manual/Auto or change the interval at any time. **Pause / Resume** as needed. Numbers are announced aloud on your device (🔊 in the header mutes).
+4. **Call numbers:** *Call next* in Manual mode. Switch Manual/Auto or change the interval at any time. **Pause / Resume** as needed. The caller voice is chosen by the Admin. Numbers are announced aloud (🔊 in the header mutes).
 5. Watch the **Prizes** panel and **Claims & feed**. The game **completes automatically** when every prize is full; you may also press **End game** (or **Cancel room** before starting).
 6. Results are shown after the game and kept in *My Games* and under **Past games** on Home.
 7. **Delete a finished game** (Past games → *Delete*, or the button on the Results page) when you no longer want it listed. It disappears for you and all players; an Admin can still see it in *Reports → Deleted games* and restore it. Games that are still live cannot be deleted — end or cancel them first.
@@ -75,3 +85,11 @@ Admins are listed in `appsettings.json → Tambola:AdminUsers`.
 | I mis-registered my code | Ask the Admin to deactivate the record / correct it. |
 | I can't find a game that was finished | Look under **Past games**. If the host deleted it, ask the Admin to restore it. |
 | I can't sign in (Linux hosting) | Check the domain, User ID and password; after 5 failures wait 10 minutes or ask the Admin to reset your password. |
+
+
+## Game screen layout and claiming several times (v1.2)
+* **Number strip:** the current number and the last numbers called sit above your tickets and stay in view on phones.
+* **Tickets:** up to 3 per row (2 on tablets, 1 on small phones), larger on big screens. Each ticket shows how close it is (for example "2 to go · Full House") and a 🏆 badge for each prize it has won. Tap a number on the board or recent list to highlight it on all your tickets.
+* **Right panel (tabs):** *Prizes*, *Numbers*, *Feed* and *Players*. On phones these become a bottom bar that slides a panel up. A green dot on 🏆 means one of your tickets is ready to claim.
+* **One prize, once per ticket:** if the host keeps 5 Full Houses and you hold 3 tickets, you can win Full House up to 3 times, once with each complete ticket. A ticket cannot win the same prize twice. The prize's winner quota is shared with all players, and wrong claims still count per player for each prize (host's *wrong-claim limit*).
+* **Admin → Sound:** sound on/off by default, caller voice, fallback voice, volume, whether players may mute, and a clip tester.

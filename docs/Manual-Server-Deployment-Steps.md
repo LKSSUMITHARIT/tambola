@@ -216,8 +216,9 @@ curl -s http://127.0.0.1:5000/health; echo
 systemctl show tambola -p Environment --no-pager | tr ' ' '\n' | grep -E "AdminUsers|AllowedDomains|AuthMode"
 ```
 **Check:**
-* `active`, the log shows `AuthMode=Manual: ... Allowed domains: KEYWORDSINTL, Custom` and "Now listening on: http://127.0.0.1:5000".
-* The health call prints `{"status":"ok",...}`.
+* `active`, and the log shows `AuthMode=Manual: ... Allowed domains: KEYWORDSINTL, Custom`. (A "No XML encryptor configured" warning is normal. The log does **not** print "Now listening", because the app's log settings hide that message.)
+* The health call prints `{"status":"ok",...}`. This is the real proof that the app is serving.
+* Every `Environment=` line whose value contains a **space** must be quoted as a whole, e.g. `Environment="ConnectionStrings__Tambola=Data Source=...;Default Timeout=30"`. Unquoted, systemd cuts the value at the first space and the app crashes at start-up with "Format of the initialization string does not conform to specification".
 * The environment line shows `Tambola__AdminUsers__0=KEYWORDSINTL\sumit.harit` with **one** backslash. If it shows two (`\\`), change that line in the unit file to `KEYWORDSINTL\x5csumit.harit` (hex code for a backslash), then run `systemctl daemon-reload && systemctl restart tambola` and check again.
 * If the service fails with a message about **ICU / globalization**, add the line `Environment=DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` under the other Environment lines, reload and restart.
 

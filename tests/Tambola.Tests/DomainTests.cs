@@ -72,4 +72,17 @@ public class PatternTests
         Assert.False(p.IsSatisfied(Sample(), new HashSet<int> { 5, 21, 43, 61 }));
         Assert.True(p.IsSatisfied(Sample(), new HashSet<int> { 5, 21, 43, 61, 90 }));
     }
+
+    [Theory]
+    [InlineData(PrizePattern.Star, new[] { 43, 14, 48, 55, 9, 68, 90 })]
+    [InlineData(PrizePattern.Pyramid, new[] { 43, 27, 48, 55, 9, 18, 36, 68, 90 })]
+    [InlineData(PrizePattern.Diamond, new[] { 43, 48, 55 })]
+    [InlineData(PrizePattern.LetterH, new[] { 5, 14, 27, 48, 55, 83, 9, 90 })]
+    [InlineData(PrizePattern.LetterX, new[] { 5, 48, 55, 9, 90 })]
+    public void Shape_patterns_require_every_number_in_their_shape(PrizePattern pattern, int[] nums)
+    {
+        var p = PatternCatalog.Get(pattern);
+        Assert.False(p.IsSatisfied(Sample(), nums.Skip(1).ToHashSet()));
+        Assert.True(p.IsSatisfied(Sample(), nums.ToHashSet()));
+    }
 }

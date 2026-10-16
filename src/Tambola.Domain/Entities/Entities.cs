@@ -3,7 +3,11 @@ namespace Tambola.Domain.Entities;
 public enum RoomStatus { Lobby = 0, Running = 1, Paused = 2, Completed = 3, Cancelled = 4 }
 public enum CallMode { Manual = 0, Auto = 1 }
 public enum CutMode { Manual = 0, Auto = 1 }
-public enum PrizePattern { FourCorners = 0, FirstRow = 1, SecondRow = 2, ThirdRow = 3, FullHouse = 4, EarlyFive = 5 }
+public enum PrizePattern
+{
+    FourCorners = 0, FirstRow = 1, SecondRow = 2, ThirdRow = 3, FullHouse = 4, EarlyFive = 5,
+    Star = 6, Pyramid = 7, Diamond = 8, LetterH = 9, LetterX = 10
+}
 public enum ClaimResult { Valid = 0, Bogey = 1, Late = 2 }
 
 public class Employee
@@ -127,4 +131,11 @@ public class AuditLog
     public string Actor { get; set; } = "";
     public string Action { get; set; } = "";
     public string? Details { get; set; }
+}
+
+/// <summary>Admin-managed global setting (key/value), e.g. the caller sound options.</summary>
+public class AppSetting
+{
+    public string Key { get; set; } = "";
+    public string Value { get; set; } = "";
 }

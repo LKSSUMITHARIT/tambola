@@ -30,9 +30,11 @@ _Last updated: 2026-10-13_
 - 2026-10-11 (build): defaults chosen for open questions — Host cannot play own room; late join/tickets allowed until 10 calls; bogey locks that prize for the player; no email OTP; prizes are non-monetary; no full 6-ticket set.
 - 2026-10-11 (build): .NET 10 (installed SDK) instead of .NET 8; 3 projects (Domain/Web/Tests); Fluent-style local CSS instead of Fluent web-components; EF `EnsureCreated` instead of migrations; single Play page serves lobby+game, single Host page serves lobby+console.
 - 2026-10-11: Defaults changed — dark theme and sound ON (numbers read aloud + WebAudio win/late/invalid effects). Configurable via `Tambola:DefaultTheme` / `Tambola:DefaultSoundOn`; each user's 🌓/🔊 choice is remembered in the browser. Also fixed Windows-auth 500 (status-code re-execute ran Negotiate twice) — `Program.cs` no longer re-executes on 401.
-- Tie rule: claims processed serially per room; ordering = server arrival. A player can win each prize at most once.
+- Tie rule: claims processed serially per room; ordering = server arrival. A player can win each prize once per ticket they hold (v1.2).
 
 - 2026-10-13: v1.1 decisions — Linux login = domain dropdown + userID + password (email may be any domain); Windows mode also rejects users whose domain is not in `AllowedDomains`; wrong claims: per-room numeric limit (default 3, 0 = unlimited, old rooms = 1); room cap 1500; delete = soft delete (host/Admin, finished games only), Admin can restore; joins sent as `PlayerJoined` delta instead of full list.
+
+- 2026-10-16: v1.2 — funny Hindi caller clips (recorded-style mp3 + preload + offline cache), caller sound options moved to an Admin-only Sound page (global, live via SignalR), game screens redesigned (Design C: number strip, 3 tickets/row, tabbed right panel, mobile dock), one prize win per ticket. Tests 33/33.
 
 ## Backlog / next
 1. Browser UAT of Play/Host pages with multiple users; fix UI issues.
