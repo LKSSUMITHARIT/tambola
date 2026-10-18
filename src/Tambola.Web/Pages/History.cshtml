@@ -1,7 +1,7 @@
 @page
 @model HistoryModel
 @{ ViewData["Title"] = "My Games"; }
-<h1>My Games</h1><p class="sub">Your past games and prizes.</p>
+<section class="hero"><div class="ico">🎮</div><div class="txt"><h1>My <span class="acc">Games</span></h1><p>Your past games and prizes.</p></div></section>
 <div class="card">
   @if (Model.Rows.Count == 0) { <p class="sub">You haven't played yet.</p> }
   else

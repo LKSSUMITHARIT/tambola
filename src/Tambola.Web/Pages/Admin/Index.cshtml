@@ -2,12 +2,11 @@
 @model Tambola.Web.Pages.Admin.IndexModel
 @inject Microsoft.Extensions.Options.IOptions<Tambola.Web.Services.AppOptions> AppOpt
 @{ ViewData["Title"] = "Hosts & Employees"; var appOpt = AppOpt.Value; }
-<h1>Hosts &amp; Employees</h1>
+<section class="hero"><div class="ico">🛡️</div><div class="txt"><h1>Hosts &amp; <span class="acc">Employees</span></h1><p>Grant or revoke the Host role. Any number of employees can be Hosts.</p></div></section>
 @if (Model.TempPasswordInfo != null)
 {
   <div class="alert">Temporary password (shown once — give it to the employee, who must change it at next login): <b style="font-family:monospace;user-select:all">@Model.TempPasswordInfo</b></div>
 }
-<p class="sub">Grant or revoke the Host role. Any number of employees can be Hosts.</p>
 <div class="card">
   <form method="get" class="row spread"><input name="Q" value="@Model.Q" placeholder="Search name, code, email…" style="max-width:340px">
     <span class="badge brand">@Model.Employees.Count employees · @Model.Employees.Count(e => e.IsHost) hosts</span></form>

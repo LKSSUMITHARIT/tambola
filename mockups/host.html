@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Host Console - Tambola Mockup</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="host">
+<main>
+  <section class="hero">
+    <div class="ico">🎙️</div>
+    <div class="txt"><h1>Funny <span>Game</span> <span class="badge ok" style="font-size:13px">Lobby</span></h1>
+      <p>Calling: Manual &nbsp;•&nbsp; Cutting: Manual &nbsp;•&nbsp; 4 players &nbsp;•&nbsp; Share the code →</p></div>
+    <div class="actions"><div class="gid"><small>Game ID</small><b>97U5GJ</b></div></div>
+  </section>
+
+  <div class="card strip mt">
+    <div class="ball">—</div><div class="said">Current number</div>
+    <div class="recent"><div class="ball" style="--c:#d946ef;--d:#6b1d85">23</div><div class="ball" style="--c:#22c55e;--d:#0d6b2e">46</div><div class="ball">7</div></div>
+    <div class="cntbox"><b>3</b> / 90 called</div>
+  </div>
+
+  <div class="cols">
+    <div class="stack">
+      <div class="card ctl">
+        <button class="btn ok sm" type="button">▶ Start game</button>
+        <button class="btn primary sm" type="button" disabled>🎱 Call next</button>
+        <div class="pill-toggle" style="margin:0"><button type="button" class="on">Manual</button><button type="button">Auto</button></div>
+        <select><option>3</option><option>4</option><option>5</option><option selected>6</option><option>8</option><option>10</option></select>
+        <button class="btn sm" type="button" disabled>⏸ Pause</button>
+        <button class="btn danger sm" type="button">■ End game</button>
+        <span class="hint" style="margin:0 0 0 auto">Numbers are announced on this device.</span>
+      </div>
+      <div class="card"><h2>Board</h2><div class="board big" data-called="7,23,46"></div></div>
+    </div>
+    <aside class="card side tabroot">
+      <div class="tabs">
+        <button class="on" data-tab="prizes"><i>🏆</i>Prizes</button>
+        <button data-tab="feed"><i>📡</i>Claims &amp; feed</button>
+        <button data-tab="players"><i>👥</i>Players <span class="badge ok">4</span></button>
+      </div>
+      <div class="pane on" data-pane="prizes">
+        <div class="prize"><span class="tr" style="color:#f5b301">🏆</span><div><b>Four Corners</b><small>0/4 winners</small></div><span class="st">Not started</span></div>
+        <div class="prize"><span class="tr" style="color:#94a3b8">🥈</span><div><b>1st Row</b><small>0/5 winners</small></div><span class="st">Not started</span></div>
+        <div class="prize"><span class="tr" style="color:#f97316">🥉</span><div><b>2nd Row</b><small>0/5 winners</small></div><span class="st">Not started</span></div>
+        <div class="prize"><span class="tr" style="color:#8b5cf6">🏆</span><div><b>3rd Row</b><small>0/5 winners</small></div><span class="st">Not started</span></div>
+        <div class="prize"><span class="tr" style="color:#14b8a6">🏆</span><div><b>Full House</b><small>0/1 winners</small></div><span class="st">Not started</span></div>
+      </div>
+      <div class="pane" data-pane="feed"><div class="feed"><div>No claims yet<small>Claims appear here live</small></div></div></div>
+      <div class="pane" data-pane="players"><div class="plist">
+        <div>👤 demoUser123 <small>3 tickets</small><button class="btn sm danger">Remove</button></div>
+        <div>👤 priya.s <small>2 tickets</small><button class="btn sm danger">Remove</button></div>
+        <div>👤 rahul.k <small>3 tickets</small><button class="btn sm danger">Remove</button></div></div>
+        <button class="btn sm" type="button">🔒 Lock room</button></div>
+    </aside>
+  </div>
+</main>
+<nav class="dock" id="dock">
+  <button class="on" data-tab="home">🔢<br>Board</button><button data-tab="prizes">🏆<br>Prizes</button>
+  <button data-tab="feed">💬<br>Claims</button><button data-tab="players">👥<br>Players</button>
+</nav>
+<script src="assets/shell.js"></script>
+</body></html>

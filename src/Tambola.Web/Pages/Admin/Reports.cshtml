@@ -1,8 +1,8 @@
 @page
 @model Tambola.Web.Pages.Admin.ReportsModel
 @{ ViewData["Title"] = "Reports"; }
-<div class="row spread"><div><h1>Reports &amp; Audit</h1><p class="sub">Participation, winners and activity log.</p></div>
-  <a class="btn" href="/Admin/Reports?handler=Csv">⬇ Export CSV</a></div>
+<section class="hero"><div class="ico">📊</div><div class="txt"><h1>Reports &amp; <span class="acc">Audit</span></h1><p>Participation, winners and activity log.</p></div>
+  <div class="actions"><a class="btn" href="/Admin/Reports?handler=Csv">⬇ Export CSV</a></div></section>
 <div class="grid g3" style="margin-bottom:16px">
   <div class="card stat"><b>@Model.Games</b><span>Completed games</span></div>
   <div class="card stat"><b>@Model.Players</b><span>Unique players</span></div>

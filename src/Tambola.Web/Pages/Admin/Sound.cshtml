@@ -1,8 +1,7 @@
 @page
 @model Tambola.Web.Pages.Admin.SoundModel
 @{ ViewData["Title"] = "Sound settings"; ViewData["Narrow"] = false; }
-<h1>Sound settings</h1>
-<p class="sub">Applies to everyone (hosts and players) in every room. Players cannot change the caller voice; they can only mute on their own device, if you allow it below.</p>
+<section class="hero"><div class="ico">🔊</div><div class="txt"><h1>Sound <span class="acc">settings</span></h1><p>Applies to everyone (hosts and players) in every room. Players cannot change the caller voice; they can only mute on their own device, if you allow it below.</p></div></section>
 @if (Model.Saved) { <div class="alert info">Saved. Open rooms pick the new settings up within a few seconds.</div> }
 <form method="post" class="card" style="max-width:860px">
   <div class="setting"><label>Number announcements<small>Default state when a page opens</small></label>

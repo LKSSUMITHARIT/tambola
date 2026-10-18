@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home - Tambola Mockup</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="index">
+<main>
+  <section class="hero">
+    <div class="ico">👋</div>
+    <div class="txt"><h1>Hello, <span>demoUser123</span></h1><p>Join a game with a room code, or pick an open room below.</p></div>
+  </section>
+  <div class="cols">
+    <div class="stack">
+      <div class="card"><h2>Join with room code</h2>
+        <form class="row" onsubmit="return false"><input class="codein" maxlength="6" placeholder="ABC123" autocomplete="off"><a class="btn primary" href="play.html">Join Room</a></form>
+      </div>
+      <div class="card">
+        <div class="pill-toggle"><button type="button" class="on" data-show="live">Live games (2)</button><button type="button" data-show="past">Past games (2)</button></div>
+        <div data-view="live" class="tbl"><h2>Live games</h2>
+          <table><tr><th>Room</th><th>Host</th><th>Players</th><th>Status</th><th></th></tr>
+          <tr><td><b>Funny Game</b><br><small>Code 97U5GJ</small></td><td>Sumit Harit</td><td>4 / 100</td><td><span class="badge ok">Lobby</span></td><td><a class="btn sm primary" href="play.html">Join</a></td></tr>
+          <tr><td><b>Friday Fun Tambola</b><br><small>Code K7Q2XM</small></td><td>Anita Rao</td><td>23 / 200</td><td><span class="badge warn">Running · 31 called</span></td><td><a class="btn sm primary" href="play.html">Join</a></td></tr></table>
+        </div>
+        <div data-view="past" class="tbl" style="display:none"><h2>Past games</h2>
+          <table><tr><th>Game</th><th>Host</th><th>Ended</th><th>Status</th><th></th></tr>
+          <tr><td><b>Diwali Special</b><br><small>Code D1W4LI</small></td><td>Anita Rao</td><td>2026-10-10 17:45</td><td><span class="badge ok">Completed</span></td><td><div class="row"><a class="btn sm" href="results.html">Results</a><button class="btn sm danger" type="button">Delete</button></div></td></tr>
+          <tr><td><b>Team Lunch</b><br><small>Code TL92AB</small></td><td>Sumit Harit</td><td>2026-10-03 13:10</td><td><span class="badge bad">Ended</span></td><td><div class="row"><a class="btn sm" href="results.html">Results</a><button class="btn sm danger" type="button">Delete</button></div></td></tr></table>
+        </div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card"><h2>My stats</h2>
+        <div class="grid g3"><div class="stat"><b>12</b><span>Games</span></div><div class="stat"><b>5</b><span>Prizes won</span></div><div class="stat"><b>1</b><span>Full Houses</span></div></div></div>
+      <div class="card"><h2>Host tools</h2><a class="btn" href="create-room.html">➕ Create Room</a>
+        <div class="prize mt"><span class="tr">🎙️</span><div><b>Funny Game</b><small>97U5GJ · Lobby</small></div><a class="btn sm primary" style="margin-left:auto" href="host.html">Console</a></div>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="assets/shell.js"></script>
+</body></html>

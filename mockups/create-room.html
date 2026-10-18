@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create Room - Tambola Mockup</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="create">
+<main>
+  <section class="hero"><div class="ico">➕</div><div class="txt"><h1>Create <span>Room</span></h1><p>Configure the game. Prizes and winner counts are fixed once the game starts.</p></div></section>
+  <div class="cols">
+    <div class="stack">
+      <div class="card"><h2>Game settings</h2>
+        <label>Room name</label><input placeholder="Friday Fun Tambola" value="Funny Game">
+        <div class="grid g2"><div><label>Max players (up to 1500)</label><input type="number" value="100"></div><div><label>Max tickets per player</label><input type="number" value="3"></div></div>
+        <label>Wrong claims allowed per prize</label><input type="number" value="3" style="max-width:140px">
+        <div class="hint">A player whose claim is wrong may try again until this many wrong claims; then that prize is locked for them. Enter 0 for unlimited tries.</div>
+        <div class="grid g2">
+          <div><label>Number calling</label><select><option>Manual (host presses Call next)</option><option>Auto (server calls)</option></select>
+            <label>Auto interval (seconds, 3–15)</label><input type="number" value="6"></div>
+          <div><label>Number cutting</label><select id="cutMode"><option>Manual — called numbers highlighted</option><option>Manual — no highlight (find it yourself)</option><option>Auto (cut for everyone)</option></select>
+            <div class="hint" id="cutHint">Players tap a highlighted number to cut it. Players still press Claim in every mode.</div></div>
+        </div>
+      </div>
+      <div class="card tbl"><h2>Prizes &amp; winner counts</h2>
+        <table><tr><th>On</th><th>Winning case</th><th>Winners</th><th>Reward (optional)</th></tr>
+          <tr><td><input type="checkbox" checked></td><td><b>Four Corners</b></td><td><input type="number" value="4" style="width:80px"></td><td><input placeholder="e.g. Gift voucher"></td></tr>
+          <tr><td><input type="checkbox" checked></td><td><b>1st Row</b></td><td><input type="number" value="5" style="width:80px"></td><td><input placeholder="e.g. Gift voucher"></td></tr>
+          <tr><td><input type="checkbox" checked></td><td><b>2nd Row</b></td><td><input type="number" value="5" style="width:80px"></td><td><input placeholder="e.g. Gift voucher"></td></tr>
+          <tr><td><input type="checkbox" checked></td><td><b>3rd Row</b></td><td><input type="number" value="5" style="width:80px"></td><td><input placeholder="e.g. Gift voucher"></td></tr>
+          <tr><td><input type="checkbox" checked></td><td><b>Full House</b></td><td><input type="number" value="1" style="width:80px"></td><td><input placeholder="e.g. Gift voucher"></td></tr></table>
+        <div class="hint">The first N valid claims win each prize; it then closes automatically.</div>
+      </div>
+    </div>
+    <div class="card"><h2>Ready?</h2><p class="sub">You'll get a 6-character room code to share with players.</p>
+      <div class="row"><a class="btn primary" href="host.html">Create room</a><a class="btn" href="index.html">Cancel</a></div></div>
+  </div>
+</main>
+<script src="assets/shell.js"></script>
+<script>
+var hints=['Players tap a highlighted number to cut it. Players still press Claim in every mode.',
+ 'Called numbers are NOT highlighted on tickets. Players must spot the number and tap it; a tap on a number that was not called is rejected. Players still press Claim.',
+ 'Numbers are cut for everyone automatically. Players still press Claim.'];
+document.getElementById('cutMode').onchange=function(){document.getElementById('cutHint').textContent=hints[this.selectedIndex];};
+</script>
+</body></html>

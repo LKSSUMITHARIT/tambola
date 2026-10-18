@@ -1,8 +1,7 @@
 @page
 @model IndexModel
 @{ ViewData["Title"] = "Home"; }
-<h1>Hello, @Model.DisplayName 👋</h1>
-<p class="sub">Join a game with a room code, or pick an open room below.</p>
+<section class="hero"><div class="ico">👋</div><div class="txt"><h1>Hello, <span class="acc">@Model.DisplayName</span></h1><p>Join a game with a room code, or pick an open room below.</p></div></section>
 <div class="cols">
   <div class="grid">
     <div class="card">

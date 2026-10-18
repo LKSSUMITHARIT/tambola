@@ -12,7 +12,7 @@ $(function () {
   function render() {
     var st = STATUS[S.status] || [S.status, '']; $('#statusBadge').text(st[0]).attr('class', 'badge ' + st[1]);
     var running = S.status === 'Running', paused = S.status === 'Paused', live = running || paused, auto = S.callMode === 'Auto';
-    $('#callLbl').text(auto ? 'Auto (every ' + S.interval + 's)' : 'Manual'); $('#cutLbl').text(S.cutMode === 'Auto' ? 'Auto' : 'Manual');
+    $('#callLbl').text(auto ? 'Auto (every ' + S.interval + 's)' : 'Manual'); $('#cutLbl').text(S.cutMode === 'Auto' ? 'Auto' : S.cutMode === 'ManualNoHighlight' ? 'Manual (no highlight)' : 'Manual');
     $('#cm button').each(function () { $(this).toggleClass('on', $(this).data('v') === S.callMode); });
     $('#interval').val(S.interval);
     $('#start').prop('disabled', S.status !== 'Lobby');

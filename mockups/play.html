@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Play - Tambola Mockup</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="play">
+<main>
+  <section class="hero tall">
+    <div class="ico">🎡</div>
+    <div class="txt"><h1>Funny <span>Game</span></h1><p>Host: Sumit Harit &nbsp;•&nbsp; Calling: Manual (tap to call) &nbsp;•&nbsp; Cutting: <b id="cutLbl">Manual (highlighted)</b></p></div>
+    <div class="ball fl" style="width:90px;height:90px;font-size:38px;right:480px;top:22px;--c:#2f8bff;--d:#0a3fa8">7</div>
+    <div class="ball fl" style="width:68px;height:68px;font-size:26px;right:370px;top:6px;--c:#d946ef;--d:#6b1d85">23</div>
+    <div class="ball fl" style="width:84px;height:84px;font-size:32px;right:300px;top:60px;--c:#22c55e;--d:#0d6b2e">46</div>
+    <div class="actions"><div class="gid"><small>Game ID</small><b>97U5GJ</b></div></div>
+    <div class="status" id="status">⌛ Waiting for the host to start the game. Take your tickets now.</div>
+  </section>
+
+  <div class="card strip mt" id="currentCard">
+    <div class="ball" id="ball">—</div>
+    <div><div class="said" id="said">Waiting for the first call…</div><div class="hint" id="caption" style="margin:2px 0 0">Numbers appear here as the host calls them.</div></div>
+    <div class="recent" id="recent"></div>
+    <div class="cntbox"><b id="cnt">0</b> / 90 called</div>
+  </div>
+  <div class="card demo" id="demo">
+    <span class="badge brand">DEMO</span>
+    <span class="hint" style="margin:0">Mockup only — simulates the host calling numbers.</span>
+    <button class="btn primary sm" id="callBtn" type="button">🎱 Simulate next call</button>
+    <button class="btn sm" id="autoBtn" type="button">▶ Auto-play</button>
+    <label class="inl">Cutting <select id="cutSel"><option value="hl">Manual — highlighted</option><option value="nohl">Manual — no highlight</option><option value="auto">Auto</option></select></label>
+    <button class="btn sm" id="resetBtn" type="button">↺ Reset</button>
+  </div>
+
+  <div class="cols">
+    <section class="card">
+      <header><span style="font-size:30px">🎟️</span><h2>Your Tickets</h2><span class="badge brand">3/3</span>
+        <span class="goal">▦ 4 to go • Four Corners</span></header>
+      <div class="tix" id="tix"></div>
+      <p class="legend">
+        <span id="legendCalled"><i class="sq" style="background:var(--called)"></i>= called (tap to cut in manual mode)</span>
+        <span><i class="sq" style="background:var(--cut)"></i>= cut</span>
+        <span>A prize can be won once with each of your tickets. Tap a number on the board to find it on your tickets.</span>
+      </p>
+    </section>
+
+    <aside class="card side tabroot">
+      <div class="tabs">
+        <button class="on" data-tab="prizes"><i>🏆</i>Prizes</button>
+        <button data-tab="board"><i>#</i>Numbers</button>
+        <button data-tab="feed"><i>📡</i>Feed</button>
+        <button data-tab="players"><i>👥</i>Players</button>
+      </div>
+      <div class="pane on" data-pane="prizes" id="prizes"></div>
+      <div class="pane" data-pane="board"><div class="board" data-called="" data-find></div></div>
+      <div class="pane" data-pane="feed"><div class="feed" id="feed">
+        <div>Game room created<small>3 min ago</small></div><div>Sumit Harit joined as host<small>2 min ago</small></div><div>demoUser123 took 3 tickets<small>1 min ago</small></div></div></div>
+      <div class="pane" data-pane="players"><div class="plist"><div>👤 Sumit Harit (host)</div><div>👤 demoUser123</div><div>👤 priya.s</div><div>👤 rahul.k</div></div></div>
+    </aside>
+  </div>
+</main>
+<nav class="dock" id="dock">
+  <button class="on" data-tab="home">🎟️<br>Tickets</button><button data-tab="prizes">🏆<br>Prizes</button>
+  <button data-tab="board">🔢<br>Numbers</button><button data-tab="feed">💬<br>Feed</button><button data-tab="players">👥<br>Players</button>
+</nav>
+<script src="assets/shell.js"></script>
+<script>
+(function(){
+  var tickets=[
+    {c:'#1e90ff',rows:[[2,16,0,54,67,80,0,0,0],[0,31,40,57,73,81,0,0,0],[18,24,39,41,69,0,0,0,0]],cut:[2,16,18,24]},
+    {c:'#8b5cf6',rows:[[16,16,41,51,64,86,0,0,0],[0,37,43,54,65,73,0,0,0],[3,21,47,57,57,79,0,0,0]],cut:[16,86,3,79]},
+    {c:'#22c55e',rows:[[12,38,45,52,63,79,83,0,0],[8,29,48,57,65,0,88,0,0],[8,0,48,0,66,0,90,0,0]],cut:[45,79,8,88,90]}
+  ], tix=document.getElementById('tix');
+  tickets.forEach(function(t,i){
+    var h='<div class="t" style="--tc:'+t.c+'"><div class="th">🎫&nbsp;Ticket #'+(i+1)+'</div><div class="g">';
+    t.rows.forEach(function(r){r.forEach(function(n){
+      if(!n){h+='<div class="c e"></div>';return;}
+      h+='<div class="c'+(t.cut.indexOf(n)>-1?' cut':'')+'" data-n="'+n+'">'+n+'</div>';
+    });});
+    tix.insertAdjacentHTML('beforeend',h+'</div></div>');
+  });
+
+  // ---- demo: how a called number is shown ----
+  var called=[], timer=null, order=[];
+  var $=function(i){return document.getElementById(i)};
+  var lines=['Ek aur number, ek aur umeed!','Dhyan se dekho, ticket pe hai kya?','Boss, ye number aapka hai?','Chai thandi ho rahi hai, number dekho!','Kaun jeetega aaj? Sab ki nazar yahin!'];
+  var palette=[['#2f8bff','#0a3fa8'],['#d946ef','#6b1d85'],['#22c55e','#0d6b2e'],['#f5b301','#9a6200'],['#ef4444','#8a1c1c']];
+  function reshuffle(){order=[];for(var n=1;n<=90;n++)order.push(n);for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=order[i];order[i]=order[j];order[j]=t;}}
+  function paint(el,n){var c=palette[n%palette.length];el.style.setProperty('--c',c[0]);el.style.setProperty('--d',c[1]);el.textContent=n;}
+  function callNext(){
+    if(!order.length){stopAuto();return;}
+    var n=order.shift();called.push(n);
+    var ball=$('ball');paint(ball,n);ball.classList.remove('pop');void ball.offsetWidth;ball.classList.add('pop');
+    $('said').textContent='Number '+n+' ('+String(n).split('').join('-')+')';
+    $('caption').textContent=lines[called.length%lines.length];
+    $('cnt').textContent=called.length;
+    $('recent').innerHTML=called.slice(-6,-1).reverse().map(function(x){var c=palette[x%palette.length];return '<div class="ball" style="--c:'+c[0]+';--d:'+c[1]+'">'+x+'</div>';}).join('');
+    var b=document.querySelector('.board [data-n="'+n+'"]');if(b)b.classList.add('on');
+    var hit=0;[].forEach.call(document.querySelectorAll('.c[data-n="'+n+'"]'),function(c){hit++;mark(c,true);});
+    var f=$('feed');f.insertAdjacentHTML('afterbegin','<div>🎱 Number <b>'+n+'</b> called'+(hit?' — on '+hit+' of your tickets!':'')+'<small>just now</small></div>');
+    var st=$('status');st.innerHTML='🎱 Game running — tap a called number on your ticket to cut it.';
+    st.style.background='linear-gradient(90deg,#0f5a2acc,#0f5a2a66 80%,transparent)';st.style.color='#b9f5cf';
+  }
+  function stopAuto(){clearInterval(timer);timer=null;$('autoBtn').textContent='▶ Auto-play';}
+  $('callBtn').onclick=callNext;
+  $('autoBtn').onclick=function(){if(timer){stopAuto();return;}timer=setInterval(callNext,2500);this.textContent='⏸ Pause';callNext();};
+  $('resetBtn').onclick=function(){stopAuto();called=[];reshuffle();location.reload();};
+  // cutting modes: hl = called numbers highlighted, nohl = no highlight (find it yourself), auto = cut for you
+  var mode='hl';
+  var names={hl:'Manual (highlighted)',nohl:'Manual (no highlight)',auto:'Auto'};
+  function mark(c,fresh){
+    if(c.classList.contains('cut'))return;
+    if(mode==='auto'){c.classList.remove('called','flash');c.classList.add('cut');}
+    else if(mode==='hl'){c.classList.add('called');if(fresh)c.classList.add('flash');}
+    else{c.classList.remove('called','flash');}
+  }
+  function applyMode(){
+    $('cutLbl').textContent=names[mode];
+    $('legendCalled').style.display=mode==='hl'?'':'none';
+    [].forEach.call(document.querySelectorAll('.c[data-n]'),function(c){if(called.indexOf(+c.getAttribute('data-n'))>-1)mark(c,false);else c.classList.remove('called','flash');});
+  }
+  $('cutSel').onchange=function(){mode=this.value;applyMode();};
+  function toast(m){var t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(function(){t.remove();},1800);}
+  tix.addEventListener('click',function(e){
+    var c=e.target.closest('.c[data-n]');if(!c||mode==='auto'||c.classList.contains('cut'))return;
+    var n=+c.getAttribute('data-n');
+    if(called.indexOf(n)>-1){c.classList.remove('called','flash');c.classList.add('cut');}
+    else{c.classList.add('shake');setTimeout(function(){c.classList.remove('shake');},500);toast(n+' has not been called yet');}
+  });
+  reshuffle();
+  var p=[['🏆','#f5b301','Four Corners',4],['🥈','#94a3b8','1st Row',5],['🥉','#f97316','2nd Row',5],['🏆','#8b5cf6','3rd Row',5],['🏆','#14b8a6','Full House',1]];
+  document.getElementById('prizes').innerHTML=p.map(function(x){
+    return '<div class="prize"><span class="tr" style="color:'+x[1]+'">'+x[0]+'</span><div><b>'+x[2]+'</b><small>0/'+x[3]+' winners <span class="you">You 0/3</span></small></div><span class="st">Not started</span></div>';
+  }).join('');
+})();
+</script>
+</body></html>

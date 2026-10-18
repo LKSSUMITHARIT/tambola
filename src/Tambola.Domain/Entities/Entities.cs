@@ -2,7 +2,8 @@ namespace Tambola.Domain.Entities;
 
 public enum RoomStatus { Lobby = 0, Running = 1, Paused = 2, Completed = 3, Cancelled = 4 }
 public enum CallMode { Manual = 0, Auto = 1 }
-public enum CutMode { Manual = 0, Auto = 1 }
+/// <summary>Manual = called numbers are highlighted on tickets; ManualNoHighlight = players must find and tap numbers themselves; Auto = cut for everyone.</summary>
+public enum CutMode { Manual = 0, Auto = 1, ManualNoHighlight = 2 }
 public enum PrizePattern
 {
     FourCorners = 0, FirstRow = 1, SecondRow = 2, ThirdRow = 3, FullHouse = 4, EarlyFive = 5,

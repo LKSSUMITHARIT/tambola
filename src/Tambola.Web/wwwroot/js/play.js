@@ -3,6 +3,7 @@ $(function () {
   var code = $('#app').data('code'), S = null, conn = null, claiming = {}, hl = 0;
   var STATUS = { Lobby: ['Lobby', 'ok'], Running: ['Live', 'ok'], Paused: ['Paused', 'warn'], Completed: ['Completed', ''], Cancelled: ['Cancelled', 'bad'] };
 
+  function noHl() { return S.cutMode === 'ManualNoHighlight'; }   // called numbers are not highlighted; no "to go"/ready hints either
   function isCut(t, n) { return S.cutMode === 'Auto' ? S.called.indexOf(n) > -1 : t.marks.indexOf(n) > -1; }
   function hasCalled(v) { return S.called.indexOf(v) > -1; }
   function rowOf(t, r) { return t.grid.slice(r * 9, r * 9 + 9).filter(Boolean); }
@@ -25,33 +26,36 @@ $(function () {
   function wonBy(pattern) { return (S.wonTickets && S.wonTickets[pattern]) || []; }
   function openPrize(p) { return !p.closed && p.winners.length < p.winnerCount; }
 
-  /** closest open prize for a ticket, e.g. "2 to go · Full House" */
-  function hint(t) {
+  /** closest open prize across all tickets, e.g. "4 to go · Four Corners" (shown once above the tickets, not in each ticket header) */
+  function goalHint() {
     var best = null;
-    S.prizes.forEach(function (p) {
-      if (!openPrize(p) || wonBy(p.pattern).indexOf(t.id) > -1) return;
-      var n = missing(t, p.pattern); if (!best || n < best.n) best = { n: n, name: p.name };
+    S.tickets.forEach(function (t) {
+      S.prizes.forEach(function (p) {
+        if (!openPrize(p) || wonBy(p.pattern).indexOf(t.id) > -1) return;
+        var n = missing(t, p.pattern); if (!best || n < best.n) best = { n: n, name: p.name };
+      });
     });
     if (!best || best.n >= 99) return '';
-    return best.n === 0 ? '<span class="rdy">✔ ' + T.esc(best.name) + ' ready!</span>' : '<span class="togo">' + best.n + ' to go · ' + T.esc(best.name) + '</span>';
+    return best.n === 0 ? '<span class="rdy">▦ ✔ ' + T.esc(best.name) + ' ready!</span>' : '<span class="togo">▦ ' + best.n + ' to go • ' + T.esc(best.name) + '</span>';
   }
 
   function renderTickets() {
     var h = '', last = S.called[S.called.length - 1];
     S.tickets.forEach(function (t) {
       var won = S.prizes.filter(function (p) { return wonBy(p.pattern).indexOf(t.id) > -1; });
-      h += '<div class="t3' + (won.length ? ' won' : '') + '"><div class="thead"><b>Ticket #' + t.serial + '</b><span>' + hint(t) + '</span></div>' +
+      h += '<div class="t3' + (won.length ? ' won' : '') + '"><div class="thead"><b>🎫 Ticket #' + t.serial + '</b></div>' +
         (won.length ? '<div class="wons">' + won.map(function (p) { return '<span class="tb">🏆 ' + T.esc(p.name) + '</span>'; }).join(' ') + '</div>' : '') + '<div class="tgrid">';
       t.grid.forEach(function (v) {
         if (!v) { h += '<div class="blank"></div>'; return; }
         var cut = isCut(t, v), isCalled = hasCalled(v);
-        h += '<div class="num ' + (cut ? 'cut' : isCalled ? 'called' : '') + (S.cutMode === 'Manual' ? ' manual' : '') + (v === hl ? ' hl' : '') + (v === last ? ' new' : '') + '" data-t="' + t.id + '" data-n="' + v + '">' + v + '</div>';
+        h += '<div class="num ' + (cut ? 'cut' : isCalled && !noHl() ? 'called' : '') + (S.cutMode !== 'Auto' ? ' manual' : '') + (v === hl ? ' hl' : '') + (v === last ? ' new' : '') + '" data-t="' + t.id + '" data-n="' + v + '">' + v + '</div>';
       });
       h += '</div></div>';
     });
     if (!S.tickets.length) h = '<p class="sub">You have no tickets yet. Press “Get a ticket”.</p>';
     $('#tix').html(h);
     $('#tcount').text(S.tickets.length + '/' + S.maxTickets);
+    var g = S.tickets.length && !noHl() ? goalHint() : ''; $('#goal').html(g).toggle(!!g);
     var canBuy = S.tickets.length < S.maxTickets && (S.status === 'Lobby' || (S.status === 'Running' && S.called.length <= S.lateJoinMaxCalls));
     $('#buy').toggle(canBuy).text('➕ Get a ticket (' + S.tickets.length + '/' + S.maxTickets + ')');
   }
@@ -65,7 +69,7 @@ $(function () {
       else if (p.closed) { locked = true; why = 'Closed'; }
       else if (!running) { locked = true; why = S.status === 'Lobby' ? 'Not started' : 'Not running'; }
       else if (!S.tickets.length) { locked = true; why = 'No ticket'; }
-      var isReady = !locked && S.tickets.some(function (t) { return won.indexOf(t.id) < 0 && missing(t, p.pattern) === 0; });
+      var isReady = !locked && !noHl() && S.tickets.some(function (t) { return won.indexOf(t.id) < 0 && missing(t, p.pattern) === 0; });
       if (isReady) ready++;
       h += '<div class="pr' + (isReady ? ' ready' : '') + (locked ? ' off' : '') + '">' + T.patternPreview(p.pattern) +
         '<div class="nm">' + T.esc(p.name) + '<small>' + (p.reward ? T.esc(p.reward) + ' · ' : '') + p.winners.length + '/' + p.winnerCount + ' winners' +
@@ -80,12 +84,13 @@ $(function () {
   function renderHeader() {
     var st = STATUS[S.status] || [S.status, '']; $('#statusBadge').text(st[0]).attr('class', 'badge ' + st[1]);
     $('#hostName').text(S.host); $('#callLbl').text(S.callMode === 'Auto' ? 'Auto (every ' + S.interval + 's)' : 'Manual');
-    $('#cutLbl').text(S.cutMode === 'Auto' ? 'Auto (cut for you)' : 'Manual (tap to cut)');
+    $('#cutLbl').text(S.cutMode === 'Auto' ? 'Auto (cut for you)' : noHl() ? 'Manual (no highlight)' : 'Manual (tap to cut)');
+    $('#legendCalled,#legendFind').toggle(!noHl());
     $('#cnt').text(S.called.length);
     var last = S.called[S.called.length - 1];
     T.board(document.getElementById('board'), S.called, last);
     if (hl) $('#board div').filter(function () { return +this.textContent === hl; }).addClass('sel');
-    $('#recent').html(S.called.slice(-8, -1).reverse().map(function (n) { return '<span>' + n + '</span>'; }).join(''));
+    $('#recent').html(S.called.slice(-8, -1).reverse().map(function (n) { return '<span data-n="' + n + '">' + n + '</span>'; }).join(''));
     if (last) { $('#ball').text(last); $('#said').text('Number ' + last + ' called'); }
     var msg = S.status === 'Lobby' ? 'Waiting for the host to start the game. Take your tickets now.' :
       S.status === 'Paused' ? 'The host has paused the game.' : S.status === 'Cancelled' ? 'The host cancelled this game.' : '';
@@ -147,7 +152,7 @@ $(function () {
 
   // tap a number (board, recent chips, or a ticket when tapping does not cut) to highlight it on every ticket
   $(document).on('click', '#board div, #recent span, .tgrid .num:not(.manual)', function () {
-    if (!S) return;
+    if (!S || noHl()) return;                       // "find it yourself" rooms: no tap-to-locate helper
     var v = +($(this).data('n') || this.textContent); hl = hl === v ? 0 : v; renderHeader(); renderTickets();
   });
   T.initTabs('prizes');

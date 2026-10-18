@@ -2,13 +2,14 @@
 @model Tambola.Web.Pages.Rooms.HostModel
 @{ ViewData["Title"] = "Host console"; ViewData["Wide"] = true; }
 <div id="app" data-code="@Model.Code" data-role="host">
-  <div class="v3head">
-    <div><h1>@Model.RoomName <span class="badge" id="statusBadge">…</span></h1>
-      <p class="sub">Calling: <b id="callLbl"></b> · Cutting: <b id="cutLbl"></b> · <span id="pcount2">0</span> players · Share the code:</p></div>
-    <div class="code" id="roomCode">@Model.Code</div>
-  </div>
+  <section class="hero">
+    <div class="ico">🎙️</div>
+    <div class="txt"><h1>@Model.RoomName <span class="badge" id="statusBadge">…</span></h1>
+      <p>Calling: <b id="callLbl"></b> &nbsp;•&nbsp; Cutting: <b id="cutLbl"></b> &nbsp;•&nbsp; <span id="pcount2">0</span> players &nbsp;•&nbsp; Share the code →</p></div>
+    <div class="actions"><div class="gid"><small>Game ID</small><span class="code" id="roomCode">@Model.Code</span></div></div>
+    <div class="status" id="banner" style="display:none"></div>
+  </section>
   <div class="alert bad" id="conn" style="display:none">Reconnecting…</div>
-  <div class="alert warn" id="banner" style="display:none"></div>
 
   <div class="card strip">
     <div class="ball" id="ball">—</div>
@@ -28,8 +29,8 @@
         <button class="btn danger sm" id="end" type="button">■ End game</button>
         <span class="hint" style="margin:0 0 0 auto">Numbers are announced on this device. Sound is set by the Admin; 🔊 in the header mutes it here.</span>
       </div>
-      <h3 style="margin:0 0 6px">Board</h3>
-      <div class="bigboard" id="board"></div>
+      <div class="card"><h3>Board</h3>
+      <div class="bigboard" id="board"></div></div>
     </div>
     <div class="panelC" id="panel">
       <div class="tabs" id="tabs">

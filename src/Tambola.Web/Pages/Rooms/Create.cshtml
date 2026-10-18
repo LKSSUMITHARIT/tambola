@@ -4,8 +4,7 @@
 @using Tambola.Domain.Game
 @using Tambola.Web.Services
 @{ ViewData["Title"] = "Create Room"; }
-<h1>Create Room</h1>
-<p class="sub">Configure the game. Prizes and winner counts are fixed once the game starts.</p>
+<section class="hero"><div class="ico">➕</div><div class="txt"><h1>Create <span class="acc">Room</span></h1><p>Configure the game. Prizes and winner counts are fixed once the game starts.</p></div></section>
 @if (Model.Error != null) { <div class="alert bad">@Model.Error</div> }
 <form method="post">
 <div class="cols">
@@ -24,8 +23,8 @@
           <select asp-for="CallMode"><option value="Manual">Manual (host presses Call next)</option><option value="Auto">Auto (server calls)</option></select>
           <label for="Interval">Auto interval (seconds, 3–15)</label><input asp-for="Interval" type="number" min="3" max="15"></div>
         <div><label>Number cutting</label>
-          <select asp-for="CutMode"><option value="Manual">Manual (players tap)</option><option value="Auto">Auto (cut for everyone)</option></select>
-          <div class="hint">Players still press Claim in both modes.</div></div>
+          <select asp-for="CutMode"><option value="Manual">Manual — called numbers highlighted</option><option value="ManualNoHighlight">Manual — no highlight (find it yourself)</option><option value="Auto">Auto (cut for everyone)</option></select>
+          <div class="hint">No highlight: called numbers are not marked on tickets and a tap on an uncalled number is rejected. Players still press Claim in every mode.</div></div>
       </div>
     </div>
     <div class="card"><h2>Prizes &amp; winner counts</h2>

@@ -474,6 +474,31 @@ public class GameFlowTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Manual_no_highlight_room_reports_its_mode_and_still_rejects_uncalled_cuts()
+    {
+        var emps = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<EmployeeService>();
+        var hostId = await Register("host2b", "EMPH2B"); await Register("q1b", "EMPQ1B");
+        await emps.SetHostAsync("t", hostId, true);
+        var game = _factory.Services.GetRequiredService<GameService>();
+        var code = await game.CreateRoomAsync(hostId, new CreateRoomRequest("No highlight room", 10, 1, CallMode.Manual, 6, CutMode.ManualNoHighlight,
+            new() { new(PrizePattern.FullHouse, 1, null) }));
+
+        await using var host = await Connect("host2b"); await using var q1 = await Connect("q1b");
+        await host.InvokeAsync<RoomStateDto>("JoinRoom", code);
+        var state = await q1.InvokeAsync<RoomStateDto>("JoinRoom", code);
+        Assert.Equal("ManualNoHighlight", state.cutMode);
+        var t = await q1.InvokeAsync<TicketDto>("BuyTicket", code);
+        await host.InvokeAsync<bool>("Start", code);
+
+        var first = t.grid.First(v => v != 0);
+        var ex = await Assert.ThrowsAsync<HubException>(() => q1.InvokeAsync<int[]>("Mark", code, t.id, first));
+        Assert.Contains("not been called", ex.Message);
+
+        for (var i = 0; i < 90; i++) await host.InvokeAsync<bool>("CallNext", code);
+        Assert.Contains(first, await q1.InvokeAsync<int[]>("Mark", code, t.id, first));
+    }
+
+    [Fact]
     public async Task Auto_caller_calls_numbers_and_unregistered_users_are_blocked()
     {
         var emps = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<EmployeeService>();

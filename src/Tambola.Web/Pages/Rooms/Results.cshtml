@@ -1,8 +1,7 @@
 @page "/Rooms/Results/{code}"
 @model Tambola.Web.Pages.Rooms.ResultsModel
 @{ ViewData["Title"] = "Results"; var dur = Model.Room.StartedAt != null && Model.Room.EndedAt != null ? (int)(Model.Room.EndedAt.Value - Model.Room.StartedAt.Value).TotalMinutes : 0; }
-<h1>🏆 Results — @Model.Room.Name</h1>
-<p class="sub">@Model.Room.Status · @Model.Called.Length numbers called · @Model.PlayerCount players · host @Model.HostName @(dur > 0 ? $"· {dur} min" : "")</p>
+<section class="hero"><div class="ico">🏆</div><div class="txt"><h1>Results — <span class="acc">@Model.Room.Name</span></h1><p>@Model.Room.Status · @Model.Called.Length numbers called · @Model.PlayerCount players · host @Model.HostName @(dur > 0 ? $"· {dur} min" : "")</p></div></section>
 @foreach (var w in Model.MyWins) { <div class="alert info">🎉 You won <b>@w</b></div> }
 <div class="grid g2">
   <div class="card"><h2>Winners</h2>

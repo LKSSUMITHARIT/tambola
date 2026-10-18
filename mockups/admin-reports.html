@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reports - Tambola Mockup</title><link rel="stylesheet" href="assets/style.css"></head>
+<body data-page="admin-reports">
+<main>
+  <section class="hero"><div class="ico">📊</div><div class="txt"><h1>Reports &amp; <span>Audit</span></h1><p>Participation, winners and activity log.</p></div>
+    <div class="actions"><a class="btn" href="admin-hosts.html">Hosts</a><a class="btn primary" href="admin-reports.html">Reports</a><a class="btn" href="admin-sound.html">Sound</a><button class="btn" type="button">⬇ Export CSV</button></div></section>
+  <div class="grid g3 mt">
+    <div class="card stat"><b>38</b><span>Completed games</span></div>
+    <div class="card stat"><b>126</b><span>Unique players</span></div>
+    <div class="card stat"><b>412</b><span>Prizes awarded</span></div>
+  </div>
+  <div class="cols even">
+    <div class="card"><h2>Leaderboard (prizes won)</h2><table><tr><th>#</th><th>Employee</th><th>Games</th><th>Wins</th></tr>
+      <tr><td>1</td><td>priya.s <small>EMP10577</small></td><td>20</td><td>9</td></tr>
+      <tr><td>2</td><td>demoUser123 <small>EMP10001</small></td><td>12</td><td>5</td></tr>
+      <tr><td>3</td><td>rahul.k <small>EMP10690</small></td><td>15</td><td>4</td></tr></table></div>
+    <div class="card"><h2>Deleted games <span class="badge">1</span></h2>
+      <p class="hint">Hosts deleted these games, so users no longer see them. They stay here for reporting and can be restored.</p>
+      <table><tr><th>Game</th><th>Host</th><th>Deleted</th><th></th></tr>
+      <tr><td><b>Test Room</b><br><small>TS11AA · Completed</small></td><td>Sumit Harit</td><td>2026-10-12 10:02<br><small>Sumit Harit</small></td><td><button class="btn sm">Restore</button></td></tr></table></div>
+  </div>
+  <div class="card mt"><h2>Audit log</h2><div class="feed">
+    <div>10-18 09:12 · <b>RoomCreated</b> · sumit.harit · Funny Game</div>
+    <div>10-18 09:15 · <b>TicketTaken</b> · demoUser123 · 3 tickets</div>
+    <div>10-17 17:45 · <b>PrizeAwarded</b> · priya.s · Full House</div>
+    <div>10-17 11:20 · <b>HostGranted</b> · sumit.harit · anita.rao</div></div></div>
+</main>
+<script src="assets/shell.js"></script>
+</body></html>
