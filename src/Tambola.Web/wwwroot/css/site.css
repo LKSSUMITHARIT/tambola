@@ -243,3 +243,22 @@ td small{color:var(--muted)}
 }
 @media(max-width:560px){.tickets{grid-template-columns:1fr}}
 .ctl .pill-toggle{margin:0}
+
+/* ---------- Player game screen only: number strip + 4 tickets (2x2) on the left, title + prizes on the right ---------- */
+.play2{grid-template-columns:minmax(0,1fr) minmax(340px,31%)}
+.play2 .strip{margin-bottom:14px}
+.play2 .tickets{grid-template-columns:repeat(2,minmax(0,1fr))}
+.play2 .rightcol{display:flex;flex-direction:column;gap:16px;min-width:0}
+.play2 .play-hero{margin-bottom:0;padding:16px 20px;min-height:0;gap:12px}
+.play2 .play-hero .ico{font-size:44px}
+.play2 .play-hero h1{font-size:28px}
+.play2 .play-hero p{font-size:13px}
+.play2 .play-hero .gid{width:100%;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.play2 .play-hero .gid .code{margin:0;width:auto;font-size:20px;letter-spacing:6px;padding:6px 12px}
+.play2 .play-hero .status{margin:0 -20px -16px;padding:10px 20px}
+@media(max-width:1100px){
+  .play2{grid-template-columns:1fr}
+  .play2 .rightcol{display:contents}
+  .play2 .play-hero{order:-1}
+}
+@media(max-width:560px){.play2 .tickets{grid-template-columns:1fr}}

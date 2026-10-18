@@ -2,44 +2,42 @@
 @model Tambola.Web.Pages.Rooms.PlayModel
 @{ ViewData["Title"] = Model.RoomName; ViewData["Wide"] = true; }
 <div id="app" data-code="@Model.Code" data-role="player">
-  <section class="hero">
-    <div class="ico">🎡</div>
-    <div class="txt"><h1>@Model.RoomName <span class="badge" id="statusBadge">…</span></h1>
-      <p>Host: <span id="hostName"></span> &nbsp;•&nbsp; Calling: <b id="callLbl"></b> &nbsp;•&nbsp; Cutting: <b id="cutLbl"></b></p></div>
-    <div class="fl" style="width:90px;height:90px;font-size:38px;right:480px;top:22px;--c:#2f8bff;--d:#0a3fa8">7</div>
-    <div class="fl" style="width:68px;height:68px;font-size:26px;right:370px;top:6px;--c:#d946ef;--d:#6b1d85">23</div>
-    <div class="fl" style="width:84px;height:84px;font-size:32px;right:300px;top:60px;--c:#22c55e;--d:#0d6b2e">46</div>
-    <div class="actions"><div class="gid"><small>Game ID</small><span class="code" id="roomCode">@Model.Code</span></div></div>
-    <div class="status" id="banner" style="display:none"></div>
-  </section>
   <div class="alert bad" id="conn" style="display:none">Reconnecting…</div>
 
-  <div class="card strip" id="currentCard">
-    <div class="ball" id="ball">—</div>
-    <div class="said" id="said">Waiting for the first call…</div>
-    <div class="recent" id="recent"></div>
-    <div class="cntbox"><b id="cnt">0</b> / 90 called</div>
-  </div>
-
-  <div class="gC">
+  <div class="gC play2">
     <div class="card left">
+      <div class="card strip" id="currentCard">
+        <div class="ball" id="ball">—</div>
+        <div class="said" id="said">Waiting for the first call…</div>
+        <div class="recent" id="recent"></div>
+        <div class="cntbox"><b id="cnt">0</b> / 90 called</div>
+      </div>
       <div class="tickhead"><span style="font-size:30px">🎟️</span><h3>Your Tickets</h3><span class="badge brand" id="tcount"></span>
         <button class="btn primary sm" id="buy" type="button">➕ Get a ticket</button>
         <span class="goal" id="goal" style="display:none"></span></div>
       <div class="tickets" id="tix"></div>
       <p class="legend"><span id="legendCalled"><span class="sq" style="background:var(--called)"></span>= called (tap to cut in manual mode) &nbsp; </span><span class="sq" style="background:var(--cut)"></span>= cut &nbsp; · A prize can be won once with each of your tickets. <span id="legendFind">Tap a number on the board to find it on your tickets.</span></p>
     </div>
-    <div class="panelC" id="panel">
-      <div class="tabs" id="tabs">
-        <button type="button" data-tab="prizes" class="on">🏆 Prizes <span class="dot2 readycount" style="display:none">0</span></button>
-        <button type="button" data-tab="board"># Numbers</button>
-        <button type="button" data-tab="feed">📡 Feed <span class="dot2 newfeed" style="display:none">•</span></button>
-        <button type="button" data-tab="players">👥 Players</button>
+    <div class="rightcol">
+      <section class="hero play-hero">
+        <div class="ico">🎡</div>
+        <div class="txt"><h1>@Model.RoomName <span class="badge" id="statusBadge">…</span></h1>
+          <p>Host: <span id="hostName"></span> &nbsp;•&nbsp; Calling: <b id="callLbl"></b> &nbsp;•&nbsp; Cutting: <b id="cutLbl"></b></p></div>
+        <div class="gid"><small>Game ID</small><span class="code" id="roomCode">@Model.Code</span></div>
+        <div class="status" id="banner" style="display:none"></div>
+      </section>
+      <div class="panelC" id="panel">
+        <div class="tabs" id="tabs">
+          <button type="button" data-tab="prizes" class="on">🏆 Prizes <span class="dot2 readycount" style="display:none">0</span></button>
+          <button type="button" data-tab="board"># Numbers</button>
+          <button type="button" data-tab="feed">📡 Feed <span class="dot2 newfeed" style="display:none">•</span></button>
+          <button type="button" data-tab="players">👥 Players</button>
+        </div>
+        <div class="tabpane on" data-pane="prizes"><div id="prizes"></div></div>
+        <div class="tabpane" data-pane="board"><div class="board" id="board"></div></div>
+        <div class="tabpane" data-pane="feed"><div class="feed" id="feed"></div></div>
+        <div class="tabpane" data-pane="players"><p class="hint" style="margin-top:0"><span id="pcount">0</span> players</p><ul class="list" id="players"></ul></div>
       </div>
-      <div class="tabpane on" data-pane="prizes"><div id="prizes"></div></div>
-      <div class="tabpane" data-pane="board"><div class="board" id="board"></div></div>
-      <div class="tabpane" data-pane="feed"><div class="feed" id="feed"></div></div>
-      <div class="tabpane" data-pane="players"><p class="hint" style="margin-top:0"><span id="pcount">0</span> players</p><ul class="list" id="players"></ul></div>
     </div>
   </div>
 
